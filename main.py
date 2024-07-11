@@ -500,6 +500,7 @@ with container.container():
         # print(st.session_state.DescPrompt)
 
 with container.container():
+    # 生成两列布局
     cols = container.columns(2)
 
     st.session_state.Instrumental = False
@@ -511,7 +512,7 @@ with container.container():
         st.session_state.Instrumental = False
         # print(st.session_state.Instrumental)
 
-
+    # 私有模式
     st.session_state.Private = False
     private = cols[1].checkbox(i18n("Private"), help=i18n("Private Help"))
     if private:
@@ -544,6 +545,7 @@ identity = ""
 Session = ""
 Cookie = ""
 
+# 设置
 if Setting:
     st.session_state.Setting = True
     # print(st.session_state.Setting)
@@ -709,25 +711,31 @@ def fetch_status(aid: str, twice=False):
         if percent_complete >= 100:
             percent_complete = 100
         status = resp["detail"] if "detail" in resp else resp[0]["status"]
+        
         if status == "running":
+            # 运行中
             progress_text = i18n("Fetch Status Running") + status
             my_bar.progress(percent_complete, text=progress_text)
         elif status == "submitted":
+            # 已提交
             progress_text = i18n("Fetch Status Running") + status
             my_bar.progress(percent_complete, text=progress_text)
         elif status == "complete":
+            # 完成
             progress_text = i18n("Fetch Status Success") + status
             my_bar.progress(100, text=progress_text)
             # time.sleep(15) #等待图片音频视频生成完成再返回
             check_url_available(resp[0]["video_url"], twice)
             my_bar.empty()
         elif status == "Unauthorized":
+            # 未认证
             # while True:
             #     st.session_state.suno_auth = get_suno_auth()
             #     get_random_token() = st.session_state.suno_auth.get_token()
             #     if get_random_token() != "" and get_random_token() != "401":
             #         print(local_time() + f" ***fetch_status identity -> {st.session_state.suno_auth.get_identity()} session -> {st.session_state.suno_auth.get_session_id()} token -> {st.session_state.suno_auth.get_token()} ***\n")
             #         break
+            # 随机获取token
             st.session_state.token = get_random_token()
             continue
         elif status == "Not found.":
@@ -754,6 +762,7 @@ def fetch_status(aid: str, twice=False):
             break
 
         time.sleep(10)
+    # 替换音频视频地址
     if S3_WEB_SITE_URL is not None and ("s3.bitiful.net" in S3_WEB_SITE_URL or S3_WEB_SITE_URL != "https://cdn1.suno.ai"):
         resp[0]["audio_url"] = resp[0]["audio_url"].replace(S3_WEB_SITE_URL, 'https://res.sunoapi.net')
         resp[0]["video_url"] = resp[0]["video_url"].replace(S3_WEB_SITE_URL, 'https://res.sunoapi.net')

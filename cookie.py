@@ -63,6 +63,16 @@ class SunoCookie:
 
 
 def update_token(suno_cookie: SunoCookie):
+    """
+    更新token信息
+    
+    Args:
+        suno_cookie (SunoCookie): SunoCookie对象，包含用户的cookie信息
+    
+    Returns:
+        None
+    
+    """
     headers = {"Cookie": suno_cookie.get_cookie()}
     headers.update(COMMON_HEADERS)
     session_id = suno_cookie.get_session_id()
@@ -200,6 +210,16 @@ def start_keep_alive():
     t2.start()
 
 def get_random_token():
+    """
+    从数据库中随机获取一个有效的token。
+    
+    Args:
+        无参数。
+    
+    Returns:
+        str: 从数据库中随机获取的一个有效的token，如果没有找到则返回空字符串。
+    
+    """
     result = suno_sqlite.query_one("select token from session where token != '' and status='200' order by random()")
     # print(result)
     # print("\n")
