@@ -13,6 +13,15 @@ from sqlite import SqliteTool
 
 suno_sqlite = SqliteTool()
 
+PROXY_URL = os.getenv("PROXY_URL", None)
+if PROXY_URL:
+    proxies={
+        'http': PROXY_URL,
+        'https': PROXY_URL
+    }
+else:
+    proxies = {}
+
 class SunoCookie:
     def __init__(self):
         self.cookie = SimpleCookie()
@@ -92,7 +101,8 @@ def update_token(suno_cookie: SunoCookie):
         # url=f"https://clerk.suno.com/v1/client/sessions/{session_id}/tokens?_clerk_js_version=4.73.2",
         url=f"https://clerk.suno.com/v1/client/sessions/{session_id}/tokens?_clerk_js_version=4.73.3",
         headers=headers,
-        verify=False
+        verify=False,
+        proxies=proxies,
     )
     token = ""
     if resp.status_code != 200:
