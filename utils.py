@@ -25,6 +25,15 @@ COMMON_HEADERS = {
 
 BASE_URL = "https://studio-api.suno.ai"
 
+PROXY_URL = os.getenv("PROXY_URL", None)
+if PROXY_URL:
+    proxies={
+        'http': PROXY_URL,
+        'https': PROXY_URL
+    }
+else:
+    proxies = {}
+
 def fetch(url, headers=None, data=None, method="POST"):
     if headers is None:
         headers = {}
@@ -36,9 +45,9 @@ def fetch(url, headers=None, data=None, method="POST"):
         resp = None
         requests.packages.urllib3.disable_warnings()
         if method == "GET":
-            resp = requests.get(url=url, headers=headers, verify=False)
+            resp = requests.get(url=url, headers=headers, verify=False, proxies=proxies)
         else:
-            resp = requests.post(url=url, headers=headers, data=data, verify=False)
+            resp = requests.post(url=url, headers=headers, data=data, verify=False, proxies=proxies)
         if resp.status_code != 200:
             print(resp.text)
         if S3_WEB_SITE_URL is None or S3_WEB_SITE_URL == "https://cdn1.suno.ai":
@@ -122,7 +131,7 @@ def check_url_available(url, twice=False):
 def get_file_size(url):
     try:
         requests.packages.urllib3.disable_warnings()
-        resp = requests.head(url, verify=False)
+        resp = requests.head(url, verify=False, proxies=proxies)
         if resp.status_code == 200:
             file_size = resp.headers.get('Content-Length')
             if file_size:
@@ -217,7 +226,7 @@ def put_upload_file(siteurl, filename, s3accessKeyId, s3SecretKeyId, data):
         upload_url = get_upload_url(filename, s3accessKeyId, s3SecretKeyId)
         headers = {"Content-Type": "image/jpeg"}
         requests.packages.urllib3.disable_warnings()
-        resp = requests.put(url=upload_url, headers=headers, data=data, verify=False)
+        resp = requests.put(url=upload_url, headers=headers, data=data, verify=False, proxies=proxies)
         if resp.status_code == 200:
             return f"{siteurl}/images/upload/{filename}"
         else:
@@ -230,13 +239,13 @@ def suno_upload_audio(filename, bytes_data, token, my_bar):
     try:
         upload_url = f"{BASE_URL}/api/uploads/audio/"
         data = {"extension": "mp3"}
-        resp = requests.post(upload_url, headers={"Authorization": f"Bearer {token}"}, data=json.dumps(data))
+        resp = requests.post(upload_url, headers={"Authorization": f"Bearer {token}"}, data=json.dumps(data), proxies=proxies)
         result = resp.json()
         print(local_time() + f" ***suno_upload_audio -> {upload_url} upload request -> {result} ***\n")
         my_bar.progress(20)
         audio_id = result['id']
         upload_url = result['url']
-        resp = requests.post(url=result['url'], data=result['fields'], files={"file": bytes_data}) 
+        resp = requests.post(url=result['url'], data=result['fields'], files={"file": bytes_data}, proxies=proxies) 
         if resp.status_code == 204:
             print(local_time() + f" ***suno_upload_audio -> {upload_url} upload result -> {resp.status_code} ***\n")
             data = {
@@ -244,13 +253,13 @@ def suno_upload_audio(filename, bytes_data, token, my_bar):
                 "upload_filename": filename
             }
             upload_url = f"{BASE_URL}/api/uploads/audio/{audio_id}/upload-finish/"
-            resp = requests.post(upload_url, headers={"Authorization": f"Bearer {token}"}, data=json.dumps(data))
+            resp = requests.post(upload_url, headers={"Authorization": f"Bearer {token}"}, data=json.dumps(data), proxies=proxies)
             result = resp.json()
             print(local_time() + f" ***suno_upload_audio -> {upload_url} upload finish -> {result} ***\n")
             my_bar.progress(40)
             upload_url = f"{BASE_URL}/api/uploads/audio/{audio_id}/"
             while True:
-                resp = requests.get(upload_url, headers={"Authorization": f"Bearer {token}"})
+                resp = requests.get(upload_url, headers={"Authorization": f"Bearer {token}"}, proxies=proxies)
                 result = resp.json()
                 print(local_time() + f" ***suno_upload_audio -> {upload_url} upload status -> {result} ***\n")
                 if 'detail' in result and result['detail'] == "Unauthorized":
@@ -263,7 +272,7 @@ def suno_upload_audio(filename, bytes_data, token, my_bar):
                     time.sleep(5)
             my_bar.progress(60)
             upload_url = f"{BASE_URL}/api/uploads/audio/{audio_id}/initialize-clip/"
-            resp = requests.post(upload_url, headers={"Authorization": f"Bearer {token}"})
+            resp = requests.post(upload_url, headers={"Authorization": f"Bearer {token}"}, proxies=proxies)
             result = resp.json()
             print(local_time() + f" ***suno_upload_audio -> {upload_url} initializa-clip -> {result} ***\n")
             my_bar.progress(80)
