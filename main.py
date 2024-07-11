@@ -101,18 +101,23 @@ st.session_state["click_image"] = False
 
 # 设置侧边栏
 with st.sidebar:
-    selected = option_menu(None, [i18n("Music Song Create"), i18n("Music Share Square"), i18n("Music Project Readme"),i18n("Visit Official WebSite")],icons=['music-note', 'music-note-beamed', 'music-note-list'], menu_icon="cast", default_index=0)
+    selected = option_menu(None, [
+        i18n("Music Song Create"), 
+        i18n("Music Share Square"), 
+        # i18n("Music Project Readme"),
+        i18n("Visit Official WebSite")
+    ],icons=['music-note', 'music-note-beamed', 'music-note-list'], menu_icon="cast", default_index=0)
     
     if selected == i18n("Music Share Square"):
         # 分享广场
         st.switch_page("pages/square.py")
-    elif selected == i18n("Music Project Readme"):
-        # 说明
-        st.switch_page("pages/readme.py")
+    # elif selected == i18n("Music Project Readme"):
+    #     # 说明
+    #     st.switch_page("pages/readme.py")
     elif selected == i18n("Visit Official WebSite"):
         # 官方网站
         st.page_link("https://suno.com", label=i18n("Visit Official WebSite1"), icon="🌐")
-        st.page_link("https://sunoapi.net", label=i18n("Visit Official WebSite2"), icon="🌐")
+        # st.page_link("https://sunoapi.net", label=i18n("Visit Official WebSite2"), icon="🌐")
     # print(selected)
 
 # 微信图片
