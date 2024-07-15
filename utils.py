@@ -105,24 +105,68 @@ def get_page_feed(page, token):
 
 
 def generate_music(data, token):
+    """
+    根据给定的数据和token生成音乐。
+    
+    Args:
+        data (dict): 包含生成音乐所需的数据的字典。
+        token (str): 用于身份验证的token。
+    
+    Returns:
+        dict: API返回的响应数据，包含生成的音乐信息。
+    
+    """
     headers = {"Authorization": f"Bearer {token}"}
     api_url = f"{BASE_URL}/api/generate/v2/"
     response = fetch(api_url, headers, data)
     return response
 
 def generate_concat(data, token):
+    """
+    向指定API发送请求，生成字符串拼接结果。
+    
+    Args:
+        data (dict): 包含待拼接字符串的字典，键为字符串名，值为待拼接的字符串列表。
+        token (str): 用于API身份验证的令牌。
+    
+    Returns:
+        dict: API返回的响应数据，包含拼接后的字符串。
+    
+    """
     headers = {"Authorization": f"Bearer {token}"}
     api_url = f"{BASE_URL}/api/generate/concat/v2/"
     response = fetch(api_url, headers, data)
     return response
 
 def generate_lyrics(prompt, token):
+    """
+    根据给定的提示和访问令牌生成歌词。
+    
+    Args:
+        prompt (str): 歌词的提示或主题。
+        token (str): 访问API所需的令牌。
+    
+    Returns:
+        dict: 包含生成的歌词的字典，如果请求失败则返回None。
+    
+    """
     headers = {"Authorization": f"Bearer {token}"}
     api_url = f"{BASE_URL}/api/generate/lyrics/"
     data = {"prompt": prompt}
     return fetch(api_url, headers, data)
 
 def get_lyrics(lid, token):
+    """
+    根据给定的歌词ID和token获取歌词内容。
+    
+    Args:
+        lid (str): 歌词ID，用于从API中获取特定歌词。
+        token (str): 访问API所需的令牌（token）。
+    
+    Returns:
+        dict: 包含API响应数据的字典。如果发生错误，字典中将包含错误信息。
+    
+    """
     headers = {"Authorization": f"Bearer {token}"}
     api_url = f"{BASE_URL}/api/generate/lyrics/{lid}"
     return fetch(api_url, headers, method="GET")
