@@ -88,8 +88,11 @@ def change_language():
 
 col1, col2, col3 = st.columns(3)
 
+main_col = col1
+video_col = col2
+
 # 设置语言选择框
-col2.selectbox(label="Language", options=display_languages, label_visibility='collapsed',index=st.session_state.selected_index, key="selectbox_value", on_change=change_language)
+main_col.selectbox(label="Language", options=display_languages, label_visibility='collapsed',index=st.session_state.selected_index, key="selectbox_value", on_change=change_language)
 
 
 def i18n(key):
@@ -100,25 +103,34 @@ st.session_state["page"] = 1
 st.session_state["click_image"] = False
 
 # 设置侧边栏
-with st.sidebar:
-    selected = option_menu(None, [
-        i18n("Music Song Create"), 
-        i18n("Music Share Square"), 
-        # i18n("Music Project Readme"),
-        i18n("Visit Official WebSite")
-    ],icons=['music-note', 'music-note-beamed', 'music-note-list'], menu_icon="cast", default_index=0)
+# with st.sidebar:
+#     selected = option_menu(None, [
+#         i18n("Music Song Create"), 
+#         i18n("Music Share Square"), 
+#         # i18n("Music Project Readme"),
+#         i18n("Visit Official WebSite")
+#     ],icons=['music-note', 'music-note-beamed', 'music-note-list'], menu_icon="cast", default_index=0)
     
-    if selected == i18n("Music Share Square"):
-        # 分享广场
-        st.switch_page("pages/square.py")
-    # elif selected == i18n("Music Project Readme"):
-    #     # 说明
-    #     st.switch_page("pages/readme.py")
-    elif selected == i18n("Visit Official WebSite"):
-        # 官方网站
-        st.page_link("https://suno.com", label=i18n("Visit Official WebSite1"), icon="🌐")
-        # st.page_link("https://sunoapi.net", label=i18n("Visit Official WebSite2"), icon="🌐")
-    # print(selected)
+#     if selected == i18n("Music Share Square"):
+#         # 分享广场
+#         st.switch_page("pages/square.py")
+#     # elif selected == i18n("Music Project Readme"):
+#     #     # 说明
+#     #     st.switch_page("pages/readme.py")
+#     elif selected == i18n("Visit Official WebSite"):
+#         # 官方网站
+#         st.page_link("https://suno.com", label=i18n("Visit Official WebSite1"), icon="🌐")
+#         # st.page_link("https://sunoapi.net", label=i18n("Visit Official WebSite2"), icon="🌐")
+#     # print(selected)
+
+# with st.sidebar:
+#     selected = option_menu(None, [
+#         # i18n("Music Song Create"), 
+#         # i18n("Music Share Square"), 
+#         # # i18n("Music Project Readme"),
+#         # i18n("Visit Official WebSite")
+#         i18n("Setting"),
+#     ],icons=['music-note', 'music-note-beamed', 'music-note-list'], menu_icon="cast", default_index=0)
 
 # 微信图片
 # st.sidebar.image('https://sunoapi.net/images/wechat.jpg', caption=i18n("Join WeChat Group"))
@@ -138,11 +150,11 @@ with st.sidebar:
 
 # 设置侧边栏结束
 
-col2.title(i18n("Page Title"))
+main_col.title(i18n("Page Title"))
 
-col2.markdown(i18n("Page Header"))
+main_col.markdown(i18n("Page Header"))
 
-container = col2.container(border=True)
+container = main_col.container(border=True)
 
 def change_tags():
     """修改标签"""
@@ -158,7 +170,7 @@ def change_desc_prompt():
     # print("st.session_state.change_desc_prompt:" + st.session_state.change_desc_prompt)
     st.session_state.DescPrompt = st.session_state['change_desc_prompt']
 
-placeholder = col2.empty()
+placeholder = main_col.empty()
 if 'disabled_state' not in st.session_state:
     st.session_state['disabled_state'] = False
 elif st.session_state['disabled_state']:
@@ -198,11 +210,11 @@ def fetch_feed(aids: list, token: str):
             print("\n")
             if status == "complete":
                 st.balloons()
-                col1.audio(resp[0]["audio_url"] + "?play=true")
-                col1.video(resp[0]["video_url"] + "?play=true")
-                # col1.image(resp[0]["image_large_url"])
+                video_col.audio(resp[0]["audio_url"] + "?play=true")
+                video_col.video(resp[0]["video_url"] + "?play=true")
+                # center_col.image(resp[0]["image_large_url"])
                 placeholder.empty()
-                col2.success(i18n("FetchFeed Success") + resp[0]["id"])
+                main_col.success(i18n("FetchFeed Success") + resp[0]["id"])
             else:
                 placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
         else:
@@ -223,10 +235,10 @@ def fetch_feed(aids: list, token: str):
             print(result)
             print("\n")
             if status == "complete":
-                col1.audio(resp[0]["audio_url"] + "?play=true")
-                col1.video(resp[0]["video_url"] + "?play=true")
-                # col1.image(resp[0]["image_large_url"])
-                col2.success(i18n("FetchFeed Success") + resp[0]["id"])
+                video_col.audio(resp[0]["audio_url"] + "?play=true")
+                video_col.video(resp[0]["video_url"] + "?play=true")
+                # center_col.image(resp[0]["image_large_url"])
+                main_col.success(i18n("FetchFeed Success") + resp[0]["id"])
             else:
                 placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
         else:
@@ -251,7 +263,7 @@ def fetch_feed(aids: list, token: str):
                 col3.audio(resp[0]["audio_url"] + "?play=true")
                 col3.video(resp[0]["video_url"] + "?play=true")
                 # col3.image(resp[0]["image_large_url"])
-                col2.success(i18n("FetchFeed Success") + resp[0]["id"])
+                main_col.success(i18n("FetchFeed Success") + resp[0]["id"])
             else:
                 placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
         else:
@@ -280,9 +292,9 @@ def fetch_feed(aids: list, token: str):
                     status = resp["detail"] if "detail" in resp else row["status"]
                     if status == "complete":
                         # st.balloons()
-                        # col1.audio(row["audio_url"] + "?play=true")
-                        # col1.video(row["video_url"] + "?play=true")
-                        # col1.image(row["image_large_url"])
+                        # center_col.audio(row["audio_url"] + "?play=true")
+                        # center_col.video(row["video_url"] + "?play=true")
+                        # center_col.image(row["image_large_url"])
                         placeholder.success(i18n("FetchFeed Success") + row["id"])
                     else:
                         placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else row['metadata']["error_message"]))
@@ -532,16 +544,16 @@ def continue_at_change():
     print(st.session_state['continue_at'])
 
 if st.session_state['continue_at'] and st.session_state['continue_clip_id']:
-    container2 = col2.container(border=True)
+    container2 = main_col.container(border=True)
     container2.text_input(label=i18n("Extend From"), value=st.session_state['continue_at'], placeholder="", max_chars=6, help=i18n("Extend From Help"), key="continue_at_change", on_change=continue_at_change)
     container2.text_input(label=i18n("Extend From Clip"), value=st.session_state['continue_clip_id'], placeholder="", max_chars=36, help="")
 
-container2 = col2.container(border=True)
+container2 = main_col.container(border=True)
 options1 = container2.multiselect(i18n("Select Model"), ["chirp-v3-0", "chirp-v3-5"], ["chirp-v3-0"] if not st.session_state['model_name'] else st.session_state['model_name'].split(","), placeholder=i18n("Select Model Placeholder"), help=i18n("Select Model Help"), max_selections=1)
 st.session_state['model_name'] = ''.join(str(opts) for opts in options1)
 # print(st.session_state['model_name'])
 
-container1 = col2.container(border=True)
+container1 = main_col.container(border=True)
 
 st.session_state.Setting = False
 Setting = container1.toggle(i18n("Setting"))
@@ -604,7 +616,7 @@ if Setting:
                 new_suno_auth(Identity, Session, Cookie)
                 # print(st.session_state.Identity)
                 placeholder.empty()
-                col2.success(i18n("SaveInfo Success"))
+                main_col.success(i18n("SaveInfo Success"))
             else:
                 placeholder.error(i18n("SaveInfo Error"))
             print(result)
@@ -636,7 +648,7 @@ def localdatetime(str):
     return localdt.strftime('%Y-%m-%d %H:%M:%S')
 
 
-container2 = col2.container(border=True)
+container2 = main_col.container(border=True)
 
 st.session_state.FetchFeed = False
 FetchFeed = container2.toggle(i18n("FetchFeed"))
@@ -684,9 +696,9 @@ if FetchFeed:
         # print(st.session_state.FeedBtn)
 
 if st.session_state['continue_at'] and st.session_state['continue_clip_id']:
-    StartBtn = col2.button(i18n("Extend Button"), use_container_width=True, type="primary", disabled=False)
+    StartBtn = main_col.button(i18n("Extend Button"), use_container_width=True, type="primary", disabled=False)
 else:
-    StartBtn = col2.button(i18n("Generate"), use_container_width=True, type="primary", disabled=False)
+    StartBtn = main_col.button(i18n("Generate"), use_container_width=True, type="primary", disabled=False)
 
 def generate(data: schemas.CustomModeGenerateParam):
     try:
@@ -705,7 +717,7 @@ def generate_with_song_description(data: schemas.DescriptionModeGenerateParam):
 
 def fetch_status(aid: str, twice=False):
     progress_text = i18n("Fetch Status Progress")
-    my_bar = col2.progress(0, text=progress_text)
+    my_bar = main_col.progress(0, text=progress_text)
     percent_complete = 0
     my_bar.progress(percent_complete, text=progress_text)
     while True:
@@ -807,6 +819,7 @@ if StartBtn :
                     }
                 print(data)
                 print("\n")
+                # 生成音乐
                 resp = generate(data)
                 print(resp)
                 print("\n")
@@ -820,11 +833,11 @@ if StartBtn :
 
                     resp0 = fetch_status(resp["clips"][0]["id"], False)
                     if resp0[0]["status"] == "complete":
-                        col1.audio(resp0[0]["audio_url"] + "?play=true")
-                        col1.video(resp0[0]["video_url"] + "?play=true")
-                        # col1.image(resp0[0]["image_large_url"])
+                        video_col.audio(resp0[0]["audio_url"] + "?play=true")
+                        video_col.video(resp0[0]["video_url"] + "?play=true")
+                        # center_col.image(resp0[0]["image_large_url"])
                         placeholder.empty()
-                        col2.success(i18n("Generate Success") + resp0[0]["id"])
+                        main_col.success(i18n("Generate Success") + resp0[0]["id"])
                     else:
                         placeholder.error(i18n("Generate Status Error")  + (resp0[0]['status'] if resp0[0]['metadata']["error_message"] is None else resp0[0]['metadata']["error_message"]))
                     
@@ -837,7 +850,7 @@ if StartBtn :
                         col3.video(resp1[0]["video_url"] + "?play=true")
                         # col3.image(resp1[0]["image_large_url"])
                         placeholder.empty()
-                        col2.success(i18n("Generate Success") + resp1[0]["id"])
+                        main_col.success(i18n("Generate Success") + resp1[0]["id"])
                     else:
                         placeholder.error(i18n("Generate Status Error")  + (resp1[0]['status'] if resp1[0]['metadata']["error_message"] is None else resp1[0]['metadata']["error_message"]))
                     st.session_state['disabled_state'] = False
@@ -870,12 +883,12 @@ if StartBtn :
 
                     resp0 = fetch_status(resp["clips"][0]["id"], False)
                     if resp0[0]["status"] == "complete":
-                        col1.audio(resp0[0]["audio_url"] + "?play=true")
-                        col1.video(resp0[0]["video_url"] + "?play=true")
-                        # col1.image(resp0[0]["image_large_url"])
+                        video_col.audio(resp0[0]["audio_url"] + "?play=true")
+                        video_col.video(resp0[0]["video_url"] + "?play=true")
+                        # center_col.image(resp0[0]["image_large_url"])
                         placeholder.empty()
                         st.session_state.DescPrompt = ""
-                        col2.success(i18n("Generate Success") + resp0[0]["id"])
+                        main_col.success(i18n("Generate Success") + resp0[0]["id"])
                     else:
                         placeholder.error(i18n("Generate Status Error") + (resp0[0]['status'] if resp0[0]['metadata']["error_message"] is None else resp0[0]['metadata']["error_message"]))
 
@@ -889,7 +902,7 @@ if StartBtn :
                         # col3.image(resp1[0]["image_large_url"])
                         placeholder.empty()
                         st.session_state.DescPrompt = ""
-                        col2.success(i18n("Generate Success") + resp1[0]["id"])
+                        main_col.success(i18n("Generate Success") + resp1[0]["id"])
                     else:
                         placeholder.error(i18n("Generate Status Error") + (resp1[0]['status'] if resp1[0]['metadata']["error_message"] is None else resp1[0]['metadata']["error_message"]))
                     st.session_state['disabled_state'] = False
@@ -899,11 +912,11 @@ if StartBtn :
         if st.session_state['clips_0'] != "":
             resp0 = fetch_status(st.session_state['clips_0'], False)
             if resp0[0]["status"] == "complete":
-                col1.audio(resp0[0]["audio_url"] + "?play=true")
-                col1.video(resp0[0]["video_url"] + "?play=true")
-                # col1.image(resp0[0]["image_large_url"])
+                video_col.audio(resp0[0]["audio_url"] + "?play=true")
+                video_col.video(resp0[0]["video_url"] + "?play=true")
+                # center_col.image(resp0[0]["image_large_url"])
                 placeholder.empty()
-                col2.success(i18n("Generate Success") + resp0[0]["id"])
+                main_col.success(i18n("Generate Success") + resp0[0]["id"])
             else:
                 placeholder.error(i18n("Generate Status Error") + (resp0[0]['status'] if resp0[0]['metadata']["error_message"] is None else resp0[0]['metadata']["error_message"]))
 
@@ -915,7 +928,7 @@ if StartBtn :
                 col3.video(resp1[0]["video_url"] + "?play=true")
                 # col3.image(resp1[0]["image_large_url"])
                 placeholder.empty()
-                col2.success(i18n("Generate Success") + resp1[0]["id"])
+                main_col.success(i18n("Generate Success") + resp1[0]["id"])
             else:
                 placeholder.error(i18n("Generate Status Error") + (resp1[0]['status'] if resp1[0]['metadata']["error_message"] is None else resp1[0]['metadata']["error_message"]))
 
@@ -953,7 +966,7 @@ hide_streamlit_style1 = """
 </script>
 </div>
 """
-with col2:
-    st.components.v1.html(hide_streamlit_style1, height=30)
+# with main_col:
+#     st.components.v1.html(hide_streamlit_style1, height=30)
 
-components.iframe("https://sunoapi.net/analytics.html", height=0)
+# components.iframe("https://sunoapi.net/analytics.html", height=0)
