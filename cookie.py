@@ -123,6 +123,16 @@ def update_token(suno_cookie: SunoCookie):
 
 
 def page_feed(suno_cookie: SunoCookie):
+    """
+    从指定的cookie中获取token、identity和session_id，使用token获取页面动态信息并更新到SQLite数据库中。
+    
+    Args:
+        suno_cookie (SunoCookie): SunoCookie对象，包含登录信息
+    
+    Returns:
+        None
+    
+    """
     token = suno_cookie.get_token()
     identity = suno_cookie.get_identity()
     session_id = suno_cookie.get_session_id()
@@ -153,16 +163,52 @@ def page_feed(suno_cookie: SunoCookie):
 
 
 def keep_alive(suno_cookie: SunoCookie):
+    """
+    保持Suno服务的会话持续有效。
+    
+    Args:
+        suno_cookie (SunoCookie): Suno服务的cookie对象，包含必要的会话信息。
+    
+    Returns:
+        None
+    
+    Raises:
+        无异常直接抛出。
+    
+    该函数会无限循环地调用`update_token`函数来更新Suno服务的会话token，
+    并在每次更新后暂停10秒。这样做是为了防止会话因超时而过期。
+    注意，该函数没有返回值，并且会在程序运行过程中持续运行。
+    """
     while True:
         update_token(suno_cookie)
         time.sleep(10)
 
 def get_page(suno_cookie: SunoCookie):
+    """
+    获取网页内容并定时刷新。
+    
+    Args:
+        suno_cookie (SunoCookie): SunoCookie 类型的对象，包含访问网页所需的 cookie 信息。
+    
+    Returns:
+        None: 该函数无返回值，通过不断调用 page_feed 函数实现网页内容的定时刷新。
+    
+    """
     while True:
         page_feed(suno_cookie)
         time.sleep(1800)
 
 def clear_task():
+    """
+    清除数据库中状态不为'complete'和'streaming'的music表记录。
+    
+    Args:
+        无参数。
+    
+    Returns:
+        该函数没有返回值，但会周期性地执行删除操作并打印结果。
+    
+    """
     while True:
         result = suno_sqlite.delete_record("delete from music where status <> 'complete' and status <> 'streaming'")
         if result:
@@ -189,6 +235,7 @@ def new_suno_auth(identity, session, cookie):
     suno_cookie.set_session_id(session)
     suno_cookie.set_cookie(cookie)
     suno_auths.append(suno_cookie)
+    # 线程调用保活任务
     t = Thread(target=keep_alive, args=(suno_cookie,))
     t.start()
 

@@ -35,6 +35,22 @@ else:
     proxies = {}
 
 def fetch(url, headers=None, data=None, method="POST"):
+    """
+    从指定URL获取数据。
+    
+    Args:
+        url (str): 目标URL地址。
+        headers (dict, optional): 请求头信息，默认为None。如果未提供，则使用默认的公共请求头。
+        data (dict, optional): 请求体数据，默认为None。如果提供了，则将其转换为JSON字符串作为请求体发送。
+        method (str, optional): 请求方法，默认为"POST"。可以是"GET"或"POST"。
+    
+    Returns:
+        Union[dict, str]: 返回JSON对象或错误详细信息。
+    
+    Raises:
+        无特定异常，但会捕获所有异常并返回包含错误详细信息的字典。
+    
+    """
     if headers is None:
         headers = {}
     headers.update(COMMON_HEADERS)
@@ -70,6 +86,17 @@ def get_feed(ids, token):
     return response
 
 def get_page_feed(page, token):
+    """
+    获取指定页码的feed数据。
+    
+    Args:
+        page (int): 页码，用于指定要获取的feed数据的页码。
+        token (str): 访问令牌，用于身份认证和权限校验。
+    
+    Returns:
+        Any: 响应结果，通常为JSON格式的数据。
+    
+    """
     headers = {"Authorization": f"Bearer {token}"}
     # api_url = f"{BASE_URL}/api/feed/?ids={ids}"
     api_url = f"{BASE_URL}/api/feed/?page={page}"
