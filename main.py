@@ -19,7 +19,7 @@ import sys
 sys.path.append(root_dir)
 import site
 site.addsitedir(root_dir)
-from streamlit_image_select import image_select
+# from streamlit_image_select import image_select
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -92,7 +92,10 @@ main_col = col1
 video_col = col2
 
 # 设置语言选择框
-main_col.selectbox(label="Language", options=display_languages, label_visibility='collapsed',index=st.session_state.selected_index, key="selectbox_value", on_change=change_language)
+main_col.selectbox(
+    label="Language", options=display_languages, label_visibility='collapsed',index=st.session_state.selected_index, key="selectbox_value", on_change=change_language,
+    disabled=True
+)
 
 
 def i18n(key):
@@ -531,12 +534,12 @@ with container.container():
 
     # 私有模式
     st.session_state.Private = False
-    private = cols[1].checkbox(i18n("Private"), help=i18n("Private Help"))
-    if private:
-        st.session_state.Private = True
-        # print(st.session_state.Private)
-    else:
-        st.session_state.Private = False
+    # private = cols[1].checkbox(i18n("Private"), help=i18n("Private Help"))
+    # if private:
+    #     st.session_state.Private = True
+    #     # print(st.session_state.Private)
+    # else:
+    #     st.session_state.Private = False
         # print(st.session_state.Private)
 
 def continue_at_change():
@@ -549,12 +552,17 @@ if st.session_state['continue_at'] and st.session_state['continue_clip_id']:
     container2.text_input(label=i18n("Extend From Clip"), value=st.session_state['continue_clip_id'], placeholder="", max_chars=36, help="")
 
 container2 = main_col.container(border=True)
-options1 = container2.multiselect(i18n("Select Model"), ["chirp-v3-0", "chirp-v3-5"], ["chirp-v3-0"] if not st.session_state['model_name'] else st.session_state['model_name'].split(","), placeholder=i18n("Select Model Placeholder"), help=i18n("Select Model Help"), max_selections=1)
-st.session_state['model_name'] = ''.join(str(opts) for opts in options1)
+# 选择模型
+# options1 = container2.multiselect(
+#     i18n("Select Model"), ["chirp-v3-0", "chirp-v3-5"], ["chirp-v3-0"] if not st.session_state['model_name'] else st.session_state['model_name'].split(","), placeholder=i18n("Select Model Placeholder"), help=i18n("Select Model Help"), max_selections=1,
+#     disabled=True
+# )
+# st.session_state['model_name'] = ''.join(str(opts) for opts in options1)
 # print(st.session_state['model_name'])
 
 container1 = main_col.container(border=True)
 
+# 设置信息
 st.session_state.Setting = False
 Setting = container1.toggle(i18n("Setting"))
 
@@ -572,10 +580,12 @@ if Setting:
     else:
         identity = st.session_state.Identity
 
+    # 查询数据库
     result = suno_sqlite.query_one("select id,identity,[session],cookie from session where identity =?", (identity,))
     print(result)
     print("\n")
     if result:
+        # 如果存在则直接使用
         identity = result[1]
         Session = result[2]
         Cookie = result[3]
@@ -613,6 +623,7 @@ if Setting:
 
             if result:
                 st.session_state.Identity = Identity
+                # 创建新的suno认证
                 new_suno_auth(Identity, Session, Cookie)
                 # print(st.session_state.Identity)
                 placeholder.empty()
@@ -785,6 +796,7 @@ def fetch_status(aid: str, twice=False):
         resp[0]["video_url"] = resp[0]["video_url"].replace(S3_WEB_SITE_URL, 'https://res.sunoapi.net')
     return resp
 
+# 立即生成
 if StartBtn :
     if not st.session_state['disabled_state']: 
         if st.session_state.Custom:
@@ -944,28 +956,28 @@ footer {display: none;}
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Artalk评论初始化
-hide_streamlit_style1 = """
-<!--<div style="font-size: 12px;font-family: inherit; color: #697182;justify-content: center; align-items: center; word-break: break-word; text-align: center;padding-right: 15px;"><a style="text-decoration: none;color: #697182;" href="https://icp.gov.moe/?keyword=20240508" target="_blank">萌ICP备20240508号</a></div>-->
-<div id="Comments"></div>
-<div style="display:none">
-<!-- CSS -->
-<link href="https://sunoapi.net/dist/Artalk.css" rel="stylesheet" />
-<!-- JS -->
-<script src="https://sunoapi.net/dist/Artalk.js"></script>
-<!-- Artalk -->
-<div style="font-size: 12px;font-family: inherit; color: #697182;justify-content: center; align-items: center; word-break: break-word; text-align: center;padding-right: 15px;">本页浏览量 <span id="ArtalkPV">Loading...</span> 次</div>
-<div id="Comments"></div>
-<script>
-  Artalk.init({
-  el:        '#Comments',
-  pageKey:   '/',
-  pageTitle: '音乐歌曲创作'
-  server:    'https://sunoapi.net',
-  site:      'SunoAPI AI Music Generator',
-  })
-</script>
-</div>
-"""
+# hide_streamlit_style1 = """
+# <!--<div style="font-size: 12px;font-family: inherit; color: #697182;justify-content: center; align-items: center; word-break: break-word; text-align: center;padding-right: 15px;"><a style="text-decoration: none;color: #697182;" href="https://icp.gov.moe/?keyword=20240508" target="_blank">萌ICP备20240508号</a></div>-->
+# <div id="Comments"></div>
+# <div style="display:none">
+# <!-- CSS -->
+# <link href="https://sunoapi.net/dist/Artalk.css" rel="stylesheet" />
+# <!-- JS -->
+# <script src="https://sunoapi.net/dist/Artalk.js"></script>
+# <!-- Artalk -->
+# <div style="font-size: 12px;font-family: inherit; color: #697182;justify-content: center; align-items: center; word-break: break-word; text-align: center;padding-right: 15px;">本页浏览量 <span id="ArtalkPV">Loading...</span> 次</div>
+# <div id="Comments"></div>
+# <script>
+#   Artalk.init({
+#   el:        '#Comments',
+#   pageKey:   '/',
+#   pageTitle: '音乐歌曲创作'
+#   server:    'https://sunoapi.net',
+#   site:      'SunoAPI AI Music Generator',
+#   })
+# </script>
+# </div>
+# """
 # with main_col:
 #     st.components.v1.html(hide_streamlit_style1, height=30)
 

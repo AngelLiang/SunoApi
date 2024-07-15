@@ -172,6 +172,18 @@ def get_lyrics(lid, token):
     return fetch(api_url, headers, method="GET")
 
 def get_similar(ids, count, token):
+    """
+    根据给定的ID获取相似的视频片段。
+    
+    Args:
+        ids (str): 视频片段的ID，多个ID之间用逗号分隔。
+        count (int): 返回的相似视频片段的数量。
+        token (str): 访问API所需的令牌。
+    
+    Returns:
+        dict: 包含相似视频片段信息的字典。
+    
+    """
     headers = {"Authorization": f"Bearer {token}"}
     api_url = f"{BASE_URL}/api/clips/get_similar/?id={ids}&count={count}"
     return fetch(api_url, headers, method="GET")

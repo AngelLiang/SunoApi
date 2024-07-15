@@ -230,6 +230,18 @@ def get_suno_auth():
 
 
 def new_suno_auth(identity, session, cookie):
+    """
+    创建一个新的 Suno 认证信息，并将其添加到全局的 Suno 认证列表中。
+    
+    Args:
+        identity (str): 用户的身份信息。
+        session (str): 用户的会话ID。
+        cookie (str): 用户的 Cookie 信息。
+    
+    Returns:
+        None: 该函数不返回任何值，而是将新创建的 SunoCookie 对象添加到全局列表中，并启动两个线程来执行保持连接和获取页面的任务。
+    
+    """
     suno_cookie = SunoCookie()
     suno_cookie.set_identity(identity)
     suno_cookie.set_session_id(session)
