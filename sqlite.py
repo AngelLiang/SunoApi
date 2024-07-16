@@ -4,6 +4,10 @@ import sys
 import os
 import sqlite3
 import threading
+import json
+from typing import List
+from schemas import Music
+
 
 class SqliteTool():
     """
@@ -167,3 +171,21 @@ class SqliteTool():
                 return r
         except Exception as e:
             print(f"[select many records error]:{sql}", e)
+
+    def user_add_music(self, aid:str, data: dict, private, user_cookie:str):
+        return self.operate_one(
+            "insert into music (aid, data, private, user_cookie) values(?,?,?,?)", 
+            (
+                aid, 
+                json.dumps(data), 
+                private,
+                user_cookie,
+            )
+        )
+
+    def get_user_music_list(self, user_cookie:str) -> List[Music]:
+        result =  self.query_many("select data from music where user_cookie = ?", (user_cookie,))
+        music_list = []
+        for item in result:
+            music_list.append(Music.parse_raw(item[0]))
+        return music_list

@@ -1,6 +1,6 @@
 from typing import List
 from urllib3.util import Retry
-from requests import Request, Session
+from requests import Request, Session, Response
 import requests
 
 if __name__ == '__main__':
@@ -42,22 +42,23 @@ class SunoClient:
         except requests.exceptions.ConnectionError as err:
             raise SunoClientError(err)
 
-    def do_get(self, url, params=None, headers=None):
+    def do_get(self, url, params=None, headers=None) -> Response:
         return self.do_request('get', url, params=params, headers=headers)
 
-    def do_post(self, url, params=None, json=None, headers=None):
+    def do_post(self, url, params=None, json=None, headers=None) -> Response:
         return self.do_request('post', url, params=params, json=json, headers=headers)
 
     def join_url(self, path) -> str:
         return self.base_url + path
 
-    def handle_response(self, resp) -> dict:
+    def handle_response(self, resp: Response) -> dict:
         resp_json = resp.json()
         if 'detail' in resp_json:
             raise SunoClientError(resp_json['detail'])
         return resp_json
 
-    def get_feed(self, token) -> schemas.Feed:
+    def get_feed(self, token:str) -> schemas.Feed:
+        """获取创建歌曲列表"""
         url = 'https://studio-api.suno.ai/api/feed/v2?add_preset_clips=true'
         resp = self.do_get(url,headers={'Authorization': f'Bearer {token}'})
         resp_json = self.handle_response(resp)

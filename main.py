@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 
 import schemas
-from cookie import get_suno_auth,new_suno_auth,start_keep_alive,get_random_token,get_page_token
+from cookie import get_suno_auth,new_suno_auth,start_keep_alive,get_random_token
 from utils import generate_lyrics, generate_music, get_feed, get_page_feed, get_lyrics, check_url_available,local_time,get_random_style,get_random_lyrics,put_upload_file,get_new_tags,suno_upload_audio
 
 root_dir = os.path.dirname(os.path.realpath(__file__))
@@ -33,6 +33,32 @@ S3_SECRETKEY_ID = os.getenv("S3_SECRETKEY_ID")
 from sqlite import SqliteTool
 
 suno_sqlite = SqliteTool()
+
+def generate_user_uuid() -> str:
+    import uuid
+    return str(uuid.uuid4())
+
+# cookie
+def init_cookie() -> str:
+    from streamlit_cookies_manager import EncryptedCookieManager
+    cookies = EncryptedCookieManager(
+        # This prefix will get added to all your cookie names.
+        # This way you can run your app on Streamlit Cloud without cookie name clashes with other apps.
+        prefix="suno/client/",
+        # You should really setup a long COOKIES_PASSWORD secret if you're running on Streamlit Cloud.
+        password=os.getenv("COOKIES_PASSWORD", "My secret password"),
+    )
+    if not cookies.ready():
+        # Wait for the component to load and send us current cookies.
+        st.stop()
+
+    if 'uuid' not in cookies or cookies['uuid'] is None:
+        user_uuid = generate_user_uuid()
+        cookies['uuid'] = user_uuid
+        cookies.save()
+    print('cookies: ', cookies)
+    return cookies['uuid']
+
 
 st.set_page_config(page_title="SunoAPI AI Music Generator",
                    page_icon="🎵",
@@ -86,10 +112,38 @@ def change_language():
             st.session_state.Language = item.split(" - ")[0]
     # print("st.session_state.selected_index:" + str(st.session_state.selected_index))
 
+
+user_uuid = init_cookie()
+# user_uuid = '12f9b56c-5eed-4d2b-848b-db532179492b'
+st.session_state.user_uuid = user_uuid
+
+
 col1, col2, col3 = st.columns(3)
 
 main_col = col1
 video_col = col2
+
+def show_music_list():
+    st.session_state.user_music_list = suno_sqlite.get_user_music_list(st.session_state.user_uuid)
+    # 显示自己的音乐列表
+    with video_col.container(border=True):
+        video_col.write("我创建的")
+        if not st.session_state.user_music_list:
+            pass
+
+        for user_music in st.session_state.user_music_list:
+            title = user_music.title
+            image_url = user_music.image_url
+            audio_url = user_music.audio_url
+            video_url = user_music.video_url
+
+            col1, col2 = video_col.columns([1, 4])
+            col1.image(image_url, use_column_width=True)
+            col2.write(title)
+            col2.empty()
+            col2.audio(audio_url)
+        
+show_music_list()
 
 # 设置语言选择框
 # main_col.selectbox(
@@ -195,116 +249,201 @@ if 'model_name' not in st.session_state:
 # print(st.session_state['model_name'])
 
 # @st.cache_data
-def fetch_feed(aids: list, token: str):
-    if len(aids) == 1 and len(aids[0].strip()) == 36:
-        resp = get_feed(aids[0].strip(), token)
-        print(resp)
-        print("\n")
-        status = resp["detail"] if "detail" in resp else resp[0]["status"]
-        if status != "Unauthorized" and status != "Not found." and status != "error" and "refused" not in status:
-            result = suno_sqlite.query_one("select aid from music where aid =?", (aids[0].strip(),))
-            print(result)
-            print("\n")
-            if result:
-                result = suno_sqlite.operate_one("update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", (str(resp[0]), resp[0]["user_id"], resp[0]["display_name"], resp[0]["image_url"], resp[0]["title"], resp[0]["metadata"]["tags"], resp[0]["metadata"]["gpt_description_prompt"], resp[0]["metadata"]["duration"], resp[0]["status"], aids[0].strip()))
-            else:
-                result = suno_sqlite.operate_one("insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", (str(resp[0]["id"]), str(resp[0]), resp[0]["user_id"], resp[0]["display_name"], resp[0]["image_url"], resp[0]["title"], resp[0]["metadata"]["tags"], resp[0]["metadata"]["gpt_description_prompt"], resp[0]["metadata"]["duration"], resp[0]["status"], st.session_state.Private))
-            print(result)
-            print("\n")
-            if status == "complete":
-                st.balloons()
-                video_col.audio(resp[0]["audio_url"] + "?play=true")
-                video_col.video(resp[0]["video_url"] + "?play=true")
-                # center_col.image(resp[0]["image_large_url"])
-                placeholder.empty()
-                main_col.success(i18n("FetchFeed Success") + resp[0]["id"])
-            else:
-                placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
-        else:
-            placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
-    elif len(aids) == 2  and len(aids[0].strip()) == 36 and len(aids[1].strip()) == 36:
-        resp = get_feed(aids[0].strip(), token)
-        print(resp)
-        print("\n")
-        status = resp["detail"] if "detail" in resp else resp[0]["status"]
-        if status != "Unauthorized" and status != "Not found." and status != "error" and "refused" not in status:
-            result = suno_sqlite.query_one("select aid from music where aid =?", (aids[0].strip(),))
-            print(result)
-            print("\n")
-            if result:
-                result = suno_sqlite.operate_one("update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", (str(resp[0]), resp[0]["user_id"], resp[0]["display_name"], resp[0]["image_url"], resp[0]["title"], resp[0]["metadata"]["tags"], resp[0]["metadata"]["gpt_description_prompt"], resp[0]["metadata"]["duration"], resp[0]["status"], aids[0].strip()))
-            else:
-                result = suno_sqlite.operate_one("insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", (str(resp[0]["id"]), str(resp[0]), resp[0]["user_id"], resp[0]["display_name"], resp[0]["image_url"], resp[0]["title"], resp[0]["metadata"]["tags"], resp[0]["metadata"]["gpt_description_prompt"], resp[0]["metadata"]["duration"], resp[0]["status"], st.session_state.Private))
-            print(result)
-            print("\n")
-            if status == "complete":
-                video_col.audio(resp[0]["audio_url"] + "?play=true")
-                video_col.video(resp[0]["video_url"] + "?play=true")
-                # center_col.image(resp[0]["image_large_url"])
-                main_col.success(i18n("FetchFeed Success") + resp[0]["id"])
-            else:
-                placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
-        else:
-            placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
+# def fetch_feed(aids: list, token: str):
+#     if len(aids) == 1 and len(aids[0].strip()) == 36:
+#         resp = get_feed(aids[0].strip(), token)
+#         print(resp)
+#         print("\n")
+#         status = resp["detail"] if "detail" in resp else resp[0]["status"]
+#         if status != "Unauthorized" and status != "Not found." and status != "error" and "refused" not in status:
+#             result = suno_sqlite.query_one("select aid from music where aid =?", (aids[0].strip(),))
+#             print(result)
+#             print("\n")
+#             if result:
+#                 result = suno_sqlite.operate_one(
+#                     "update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", 
+#                         (
+#                         json.dumps(resp[0]), 
+#                         resp[0]["user_id"], 
+#                         resp[0]["display_name"], 
+#                         resp[0]["image_url"], 
+#                         resp[0]["title"], 
+#                         resp[0]["metadata"]["tags"], 
+#                         resp[0]["metadata"]["gpt_description_prompt"], 
+#                         resp[0]["metadata"]["duration"], 
+#                         resp[0]["status"], 
+#                         aids[0].strip()
+#                         )
+#                 )
+#             else:
+#                 result = suno_sqlite.operate_one("insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", 
+#                     (
+#                         str(resp[0]["id"]), 
+#                         json.dumps(resp[0]),
+#                         resp[0]["user_id"], 
+#                         resp[0]["display_name"], 
+#                         resp[0]["image_url"], 
+#                         resp[0]["title"], 
+#                         resp[0]["metadata"]["tags"], 
+#                         resp[0]["metadata"]["gpt_description_prompt"], 
+#                         resp[0]["metadata"]["duration"], 
+#                         resp[0]["status"], 
+#                         st.session_state.Private
+#                     )
+#                 )
+#             print(result)
+#             print("\n")
+#             if status == "complete":
+#                 st.balloons()
+#                 video_col.audio(resp[0]["audio_url"] + "?play=true")
+#                 video_col.video(resp[0]["video_url"] + "?play=true")
+#                 # center_col.image(resp[0]["image_large_url"])
+#                 placeholder.empty()
+#                 main_col.success(i18n("FetchFeed Success") + resp[0]["id"])
+#             else:
+#                 placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
+#         else:
+#             placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
+#     elif len(aids) == 2  and len(aids[0].strip()) == 36 and len(aids[1].strip()) == 36:
+#         resp = get_feed(aids[0].strip(), token)
+#         print(resp)
+#         print("\n")
+#         status = resp["detail"] if "detail" in resp else resp[0]["status"]
+#         if status != "Unauthorized" and status != "Not found." and status != "error" and "refused" not in status:
+#             result = suno_sqlite.query_one("select aid from music where aid =?", (aids[0].strip(),))
+#             print(result)
+#             print("\n")
+#             if result:
+#                 result = suno_sqlite.operate_one(
+#                     "update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", 
+#                     (
+#                         json.dumps(resp[0]), 
+#                         resp[0]["user_id"], 
+#                         resp[0]["display_name"], 
+#                         resp[0]["image_url"], 
+#                         resp[0]["title"], 
+#                         resp[0]["metadata"]["tags"], 
+#                         resp[0]["metadata"]["gpt_description_prompt"], 
+#                         resp[0]["metadata"]["duration"], 
+#                         resp[0]["status"], 
+#                         aids[0].strip()
+#                     )
+#                 )
+#             else:
+#                 result = suno_sqlite.operate_one(
+#                     "insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", 
+#                     (
+#                         str(resp[0]["id"]), 
+#                         json.dumps(resp[0]), 
+#                         resp[0]["user_id"], 
+#                         resp[0]["display_name"], 
+#                         resp[0]["image_url"], 
+#                         resp[0]["title"], 
+#                         resp[0]["metadata"]["tags"], 
+#                         resp[0]["metadata"]["gpt_description_prompt"], 
+#                         resp[0]["metadata"]["duration"], 
+#                         resp[0]["status"], 
+#                         st.session_state.Private
+#                     )
+#                 )
+#             print(result)
+#             print("\n")
+#             if status == "complete":
+#                 video_col.audio(resp[0]["audio_url"] + "?play=true")
+#                 video_col.video(resp[0]["video_url"] + "?play=true")
+#                 # center_col.image(resp[0]["image_large_url"])
+#                 main_col.success(i18n("FetchFeed Success") + resp[0]["id"])
+#             else:
+#                 placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
+#         else:
+#             placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
 
-        resp = get_feed(aids[1].strip(), token)
-        print(resp)
-        print("\n")
-        status = resp["detail"] if "detail" in resp else resp[0]["status"]
-        if status != "Unauthorized" and status != "Not found." and status != "error" and "refused" not in status:
-            result = suno_sqlite.query_one("select aid from music where aid =?", (aids[1].strip(),))
-            print(result)
-            print("\n")
-            if result:
-                result = suno_sqlite.operate_one("update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", (str(resp[0]), resp[0]["user_id"], resp[0]["display_name"], resp[0]["image_url"], resp[0]["title"], resp[0]["metadata"]["tags"], resp[0]["metadata"]["gpt_description_prompt"], resp[0]["metadata"]["duration"], resp[0]["status"], aids[1].strip()))
-            else:
-                result = suno_sqlite.operate_one("insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", (str(resp[0]["id"]), str(resp[0]), resp[0]["user_id"], resp[0]["display_name"], resp[0]["image_url"], resp[0]["title"], resp[0]["metadata"]["tags"], resp[0]["metadata"]["gpt_description_prompt"], resp[0]["metadata"]["duration"], resp[0]["status"], st.session_state.Private))
-            print(result)
-            print("\n")
-            if status == "complete":
-                st.balloons()
-                col3.audio(resp[0]["audio_url"] + "?play=true")
-                col3.video(resp[0]["video_url"] + "?play=true")
-                # col3.image(resp[0]["image_large_url"])
-                main_col.success(i18n("FetchFeed Success") + resp[0]["id"])
-            else:
-                placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
-        else:
-            placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
-    else:
-        resp = get_page_feed(aids, token)
-        print(resp)
-        print("\n")
-        status = resp["detail"] if "detail" in resp else resp[0]["status"]
-        if status != "Unauthorized" and status != "Not found." and status != "error" and "refused" not in status:
-            if len(resp) > 1:
-                for row in resp:
-                    print(row)
-                    print("\n")
-                    result = suno_sqlite.query_one("select aid from music where aid =?", (row["id"],))
-                    print(result)
-                    print("\n")
-                    if result:
-                        result = suno_sqlite.operate_one("update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", (str(row), row["user_id"], row["display_name"], row["image_url"], row["title"], row["metadata"]["tags"], row["metadata"]["gpt_description_prompt"], row["metadata"]["duration"], row["status"], row["id"]))
-                        print(local_time() + f" ***get_page_feed_update page -> {aids} ***\n")
-                    else:
-                        result = suno_sqlite.operate_one("insert into music (aid, data, sid, name, image, title, tags, prompt,duration, created, updated, status, private) values(?,?,?,?,?,?,?,?,?,?,?,?,?)", (str(row["id"]), str(row), row["user_id"], row["display_name"], row["image_url"], row["title"], row["metadata"]["tags"], row["metadata"]["gpt_description_prompt"], row["metadata"]["duration"],localdatetime(row['created_at']),localdatetime(row['created_at']), row["status"], st.session_state.Private))
-                        print(local_time() + f" ***get_page_feed_insert page -> {aids} ***\n")
-                    print(result)
-                    print("\n")
-                    status = resp["detail"] if "detail" in resp else row["status"]
-                    if status == "complete":
-                        # st.balloons()
-                        # center_col.audio(row["audio_url"] + "?play=true")
-                        # center_col.video(row["video_url"] + "?play=true")
-                        # center_col.image(row["image_large_url"])
-                        placeholder.success(i18n("FetchFeed Success") + row["id"])
-                    else:
-                        placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else row['metadata']["error_message"]))
-            else:
-                placeholder.error(i18n("FetchFeed Error") + resp["detail"][0]["msg"])
-        else:
-            placeholder.error(i18n("FetchFeed Error") + status)
+#         resp = get_feed(aids[1].strip(), token)
+#         print(resp)
+#         print("\n")
+#         status = resp["detail"] if "detail" in resp else resp[0]["status"]
+#         if status != "Unauthorized" and status != "Not found." and status != "error" and "refused" not in status:
+#             result = suno_sqlite.query_one("select aid from music where aid =?", (aids[1].strip(),))
+#             print(result)
+#             print("\n")
+#             if result:
+#                 result = suno_sqlite.operate_one(
+#                     "update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", 
+#                     (
+#                         json.dumps(resp[0]), 
+#                         resp[0]["user_id"], 
+#                         resp[0]["display_name"], 
+#                         resp[0]["image_url"], 
+#                         resp[0]["title"], 
+#                         resp[0]["metadata"]["tags"], 
+#                         resp[0]["metadata"]["gpt_description_prompt"], 
+#                         resp[0]["metadata"]["duration"], 
+#                         resp[0]["status"], 
+#                         aids[1].strip())
+#                 )
+#             else:
+#                 result = suno_sqlite.operate_one(
+#                     "insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", 
+#                     (
+#                         str(resp[0]["id"]), 
+#                         json.dumps(resp[0]), 
+#                         resp[0]["user_id"], 
+#                         resp[0]["display_name"], 
+#                         resp[0]["image_url"], 
+#                         resp[0]["title"], 
+#                         resp[0]["metadata"]["tags"], 
+#                         resp[0]["metadata"]["gpt_description_prompt"], 
+#                         resp[0]["metadata"]["duration"], 
+#                         resp[0]["status"], 
+#                         st.session_state.Private
+#                     )
+#                 )
+#             print(result)
+#             print("\n")
+#             if status == "complete":
+#                 st.balloons()
+#                 col3.audio(resp[0]["audio_url"] + "?play=true")
+#                 col3.video(resp[0]["video_url"] + "?play=true")
+#                 # col3.image(resp[0]["image_large_url"])
+#                 main_col.success(i18n("FetchFeed Success") + resp[0]["id"])
+#             else:
+#                 placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
+#         else:
+#             placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else resp[0]['metadata']["error_message"]))
+#     else:
+#         resp = get_page_feed(aids, token)
+#         print(resp)
+#         print("\n")
+#         status = resp["detail"] if "detail" in resp else resp[0]["status"]
+#         if status != "Unauthorized" and status != "Not found." and status != "error" and "refused" not in status:
+#             if len(resp) > 1:
+#                 for row in resp:
+#                     print(row)
+#                     print("\n")
+#                     result = suno_sqlite.query_one("select aid from music where aid =?", (row["id"],))
+#                     print(result)
+#                     print("\n")
+#                     if result:
+#                         result = suno_sqlite.operate_one("update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", (str(row), row["user_id"], row["display_name"], row["image_url"], row["title"], row["metadata"]["tags"], row["metadata"]["gpt_description_prompt"], row["metadata"]["duration"], row["status"], row["id"]))
+#                         print(local_time() + f" ***get_page_feed_update page -> {aids} ***\n")
+#                     else:
+#                         result = suno_sqlite.operate_one("insert into music (aid, data, sid, name, image, title, tags, prompt,duration, created, updated, status, private) values(?,?,?,?,?,?,?,?,?,?,?,?,?)", (str(row["id"]), str(row), row["user_id"], row["display_name"], row["image_url"], row["title"], row["metadata"]["tags"], row["metadata"]["gpt_description_prompt"], row["metadata"]["duration"],localdatetime(row['created_at']),localdatetime(row['created_at']), row["status"], st.session_state.Private))
+#                         print(local_time() + f" ***get_page_feed_insert page -> {aids} ***\n")
+#                     print(result)
+#                     print("\n")
+#                     status = resp["detail"] if "detail" in resp else row["status"]
+#                     if status == "complete":
+#                         # st.balloons()
+#                         # center_col.audio(row["audio_url"] + "?play=true")
+#                         # center_col.video(row["video_url"] + "?play=true")
+#                         # center_col.image(row["image_large_url"])
+#                         placeholder.success(i18n("FetchFeed Success") + row["id"])
+#                     else:
+#                         placeholder.error(i18n("FetchFeed Error") + (status if "metadata" not in resp else row['metadata']["error_message"]))
+#             else:
+#                 placeholder.error(i18n("FetchFeed Error") + resp["detail"][0]["msg"])
+#         else:
+#             placeholder.error(i18n("FetchFeed Error") + status)
 
 with container.container():
     # 生成3列布局
@@ -569,7 +708,8 @@ with container.container():
         st.session_state.DescPrompt = DescPrompt
         # print(st.session_state.DescPrompt)
 
-# with container.container():
+# 私有模式等
+with container.container():
 #     # 生成两列布局
 #     cols = container.columns(2)
 
@@ -582,7 +722,7 @@ with container.container():
 #         st.session_state.Instrumental = False
 
 #     # 私有模式
-#     st.session_state.Private = False
+    st.session_state.Private = False
 #     # private = cols[1].checkbox(i18n("Private"), help=i18n("Private Help"))
 #     # if private:
 #     #     st.session_state.Private = True
@@ -820,7 +960,7 @@ def fetch_status(aid: str, twice=False):
     my_bar.progress(percent_complete, text=progress_text)
     while True:
         resp = get_feed(aid, get_random_token())
-        print(resp)
+        print(f'get_feed:{resp}')
         print("\n")
         percent_complete = percent_complete + 1 if percent_complete >= 90 else percent_complete + 5
         if percent_complete >= 100:
@@ -868,16 +1008,46 @@ def fetch_status(aid: str, twice=False):
         print(result)
         print("\n")
         if result:
-            result = suno_sqlite.operate_one("update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", (str(resp[0]), resp[0]["user_id"], resp[0]["display_name"], resp[0]["image_url"], resp[0]["title"], resp[0]["metadata"]["tags"], resp[0]["metadata"]["gpt_description_prompt"], resp[0]["metadata"]["duration"], status, aid))
-            print(local_time() + f" ***fetch_status_update aid -> {aid} status -> {status} data -> {str(resp[0])} ***\n")
+            # 更新
+            result = suno_sqlite.operate_one(
+                "update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", 
+                (
+                    json.dumps(resp[0]), 
+                    resp[0]["user_id"], 
+                    resp[0]["display_name"], 
+                    resp[0]["image_url"], 
+                    resp[0]["title"], 
+                    resp[0]["metadata"]["tags"], 
+                    resp[0]["metadata"]["gpt_description_prompt"], 
+                    resp[0]["metadata"]["duration"], 
+                    status, 
+                    aid
+                )
+            )
+            print(local_time() + f" ***fetch_status_update aid -> {aid} status -> {status} data -> {json.dumps(resp[0])} ***\n")
         else:
-            result = suno_sqlite.operate_one("insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", (str(resp[0]["id"]), str(resp[0]), resp[0]["user_id"], resp[0]["display_name"], resp[0]["image_url"], resp[0]["title"], resp[0]["metadata"]["tags"], resp[0]["metadata"]["gpt_description_prompt"], resp[0]["metadata"]["duration"], status, st.session_state.Private))
-        print(result)
-        print("\n")
+            # 添加
+            result = suno_sqlite.operate_one(
+                "insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    str(resp[0]["id"]),
+                    json.dumps(resp[0]), 
+                    resp[0]["user_id"], 
+                    resp[0]["display_name"], 
+                    resp[0]["image_url"], 
+                    resp[0]["title"], 
+                    resp[0]["metadata"]["tags"], 
+                    resp[0]["metadata"]["gpt_description_prompt"], 
+                    resp[0]["metadata"]["duration"], 
+                    status, 
+                    st.session_state.Private
+                )
+            )
 
         if status == "complete" or status == "error":
             break
 
+        # 每隔10s更新一次状态
         time.sleep(10)
     # 如果配置了S3_WEB_SITE_URL，替换音频视频地址
     if S3_WEB_SITE_URL is not None and ("s3.bitiful.net" in S3_WEB_SITE_URL or S3_WEB_SITE_URL != "https://cdn1.suno.ai"):
@@ -925,13 +1095,30 @@ if StartBtn :
                 print(resp)
                 print("\n")
                 status = resp["status"] if "status" in resp else resp["detail"]
+                # 正在运行或已经结束
                 if status == "running" or status == "complete":
                     st.session_state['disabled_state'] = True
-                    result = suno_sqlite.operate_one("insert into music (aid, data, private) values(?,?,?)", (str(resp["clips"][0]["id"]), str(resp["clips"][0]), st.session_state.Private))
+                    # 插入一条音乐数据
+                    # result = suno_sqlite.operate_one(
+                    #     "insert into music (aid, data, private, user_cookie) values(?,?,?,?)", 
+                    #     (
+                    #         str(resp["clips"][0]["id"]), 
+                    #         str(resp["clips"][0]), 
+                    #         st.session_state.Private,
+                    #         st.session_state.user_uuid
+                    #     )
+                    # )
+                    suno_sqlite.user_add_music(
+                        str(resp["clips"][0]["id"]), 
+                        resp["clips"][1],
+                        st.session_state.Private, 
+                        st.session_state.user_uuid
+                    )
 
                     st.session_state['clips_0'] = str(resp["clips"][0]["id"])
                     st.session_state['clips_1'] = str(resp["clips"][1]["id"])
 
+                    # 获取第一首音乐信息
                     resp0 = fetch_status(resp["clips"][0]["id"], False)
                     if resp0[0]["status"] == "complete":
                         video_col.audio(resp0[0]["audio_url"] + "?play=true")
@@ -942,13 +1129,30 @@ if StartBtn :
                     else:
                         placeholder.error(i18n("Generate Status Error")  + (resp0[0]['status'] if resp0[0]['metadata']["error_message"] is None else resp0[0]['metadata']["error_message"]))
                     
-                    result = suno_sqlite.operate_one("insert into music (aid, data, private) values(?,?,?)", (str(resp["clips"][1]["id"]), str(resp["clips"][1]), st.session_state.Private))
+                    # 插入一条音乐数据
+                    # result = suno_sqlite.operate_one(
+                    #     "insert into music (aid, data, private, user_cookie) values(?,?,?,?)", 
+                    #     (
+                    #         str(resp["clips"][1]["id"]), 
+                    #         str(resp["clips"][1]), 
+                    #         st.session_state.Private,
+                    #         st.session_state.user_uuid
+                    #     )
+                    # )
+                    suno_sqlite.user_add_music(
+                        str(resp["clips"][1]["id"]), 
+                        resp["clips"][1],
+                        st.session_state.Private, 
+                        st.session_state.user_uuid
+                    )
 
+                    # 获取第二首音乐信息
                     resp1 = fetch_status(resp["clips"][1]["id"], True)
                     if resp1[0]["status"] == "complete":
+                        # 气球效果
                         st.balloons()
-                        col3.audio(resp1[0]["audio_url"] + "?play=true")
-                        col3.video(resp1[0]["video_url"] + "?play=true")
+                        # col3.audio(resp1[0]["audio_url"] + "?play=true")
+                        # col3.video(resp1[0]["video_url"] + "?play=true")
                         # col3.image(resp1[0]["image_large_url"])
                         placeholder.empty()
                         main_col.success(i18n("Generate Success") + resp1[0]["id"])
@@ -977,15 +1181,31 @@ if StartBtn :
                 status = resp["status"] if "status" in resp else resp["detail"]
                 if status == "running" or status == "complete":
                     st.session_state['disabled_state'] = True
-                    result = suno_sqlite.operate_one("insert into music (aid, data, private) values(?,?,?)", (str(resp["clips"][0]["id"]), str(resp["clips"][0]), st.session_state.Private))
+                    # 插入一条音乐数据
+                    # result = suno_sqlite.operate_one(
+                    #     "insert into music (aid, data, private, user_cookie) values(?,?,?,?)", 
+                    #     (
+                    #         str(resp["clips"][0]["id"]), 
+                    #         str(resp["clips"][0]), 
+                    #         st.session_state.Private,
+                    #         st.session_state.user_uuid,
+                    #     )
+                    # )
+                    suno_sqlite.user_add_music(
+                        str(resp["clips"][0]["id"]), 
+                        resp["clips"][1],
+                        st.session_state.Private, 
+                        st.session_state.user_uuid
+                    )
 
                     st.session_state['clips_0'] = str(resp["clips"][0]["id"])
                     st.session_state['clips_1'] = str(resp["clips"][1]["id"])
 
                     resp0 = fetch_status(resp["clips"][0]["id"], False)
                     if resp0[0]["status"] == "complete":
-                        video_col.audio(resp0[0]["audio_url"] + "?play=true")
-                        video_col.video(resp0[0]["video_url"] + "?play=true")
+                        # video_col.audio(resp0[0]["audio_url"] + "?play=true")
+                        # video_col.video(resp0[0]["video_url"] + "?play=true")
+                        show_music_list()
                         # center_col.image(resp0[0]["image_large_url"])
                         placeholder.empty()
                         st.session_state.DescPrompt = ""
@@ -993,13 +1213,28 @@ if StartBtn :
                     else:
                         placeholder.error(i18n("Generate Status Error") + (resp0[0]['status'] if resp0[0]['metadata']["error_message"] is None else resp0[0]['metadata']["error_message"]))
 
-                    result = suno_sqlite.operate_one("insert into music (aid, data, private) values(?,?,?)", (str(resp["clips"][1]["id"]), str(resp["clips"][1]), st.session_state.Private))
-                    
+                    # 插入一条音乐数据
+                    # result = suno_sqlite.operate_one(
+                    #     "insert into music (aid, data, private, user_cookie) values(?,?,?,?)", 
+                    #     (
+                    #         str(resp["clips"][1]["id"]), 
+                    #         str(resp["clips"][1]), 
+                    #         st.session_state.Private,
+                    #         st.session_state.user_uuid,
+                    #     )
+                    # )
+                    suno_sqlite.user_add_music(
+                        str(resp["clips"][1]["id"]), 
+                        resp["clips"][1],
+                        st.session_state.Private, 
+                        st.session_state.user_uuid
+                    )
+
                     resp1 = fetch_status(resp["clips"][1]["id"], True)
                     if resp1[0]["status"] == "complete":
                         st.balloons()
-                        col3.audio(resp1[0]["audio_url"] + "?play=true")
-                        col3.video(resp1[0]["video_url"] + "?play=true")
+                        # col3.audio(resp1[0]["audio_url"] + "?play=true")
+                        # col3.video(resp1[0]["video_url"] + "?play=true")
                         # col3.image(resp1[0]["image_large_url"])
                         placeholder.empty()
                         st.session_state.DescPrompt = ""
@@ -1013,8 +1248,9 @@ if StartBtn :
         if st.session_state['clips_0'] != "":
             resp0 = fetch_status(st.session_state['clips_0'], False)
             if resp0[0]["status"] == "complete":
-                video_col.audio(resp0[0]["audio_url"] + "?play=true")
-                video_col.video(resp0[0]["video_url"] + "?play=true")
+                # video_col.audio(resp0[0]["audio_url"] + "?play=true")
+                # video_col.video(resp0[0]["video_url"] + "?play=true")
+                show_music_list()
                 # center_col.image(resp0[0]["image_large_url"])
                 placeholder.empty()
                 main_col.success(i18n("Generate Success") + resp0[0]["id"])
@@ -1025,8 +1261,8 @@ if StartBtn :
             resp1 = fetch_status(st.session_state['clips_1'], True)
             if resp1[0]["status"] == "complete":
                 st.balloons()
-                col3.audio(resp1[0]["audio_url"] + "?play=true")
-                col3.video(resp1[0]["video_url"] + "?play=true")
+                # col3.audio(resp1[0]["audio_url"] + "?play=true")
+                # col3.video(resp1[0]["video_url"] + "?play=true")
                 # col3.image(resp1[0]["image_large_url"])
                 placeholder.empty()
                 main_col.success(i18n("Generate Success") + resp1[0]["id"])

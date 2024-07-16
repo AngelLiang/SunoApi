@@ -44,3 +44,51 @@ class LyricsGenerateParam(BaseModel):
     prompt: str = Field(
         default="Someone who is passionate about work and life.",
     )
+
+
+from pydantic import BaseModel, Field
+from typing import Optional, Any
+from datetime import datetime
+from uuid import UUID
+
+class MetaData(BaseModel):
+    tags: str
+    prompt: str
+    gpt_description_prompt: str
+    audio_prompt_id: Optional[Any]
+    history: Optional[Any]
+    concat_history: Optional[Any]
+    type: str
+    duration: float
+    refund_credits: bool
+    stream: bool
+    infill: Optional[Any]
+    has_vocal: Optional[Any]
+    is_audio_upload_tos_accepted: Optional[Any]
+    error_type: Optional[Any]
+    error_message: Optional[Any]
+
+class Music(BaseModel):
+    id: UUID
+    video_url: str
+    audio_url: str
+    image_url: str
+    image_large_url: str
+    is_video_pending: bool
+    major_model_version: str
+    model_name: str
+    metadata: MetaData
+    is_liked: bool
+    user_id: UUID
+    display_name: str
+    handle: str
+    is_handle_updated: bool
+    avatar_image_url: str
+    is_trashed: bool
+    reaction: Optional[Any]
+    created_at: datetime
+    status: str
+    title: str
+    play_count: int
+    upvote_count: int
+    is_public: bool

@@ -176,12 +176,12 @@ def keep_alive(suno_cookie: SunoCookie):
         无异常直接抛出。
     
     该函数会无限循环地调用`update_token`函数来更新Suno服务的会话token，
-    并在每次更新后暂停10秒。这样做是为了防止会话因超时而过期。
+    并在每次更新后暂停60秒。这样做是为了防止会话因超时而过期。
     注意，该函数没有返回值，并且会在程序运行过程中持续运行。
     """
     while True:
         update_token(suno_cookie)
-        time.sleep(10)
+        time.sleep(60)
 
 def get_page(suno_cookie: SunoCookie):
     """
@@ -309,14 +309,14 @@ def get_random_token():
         print(local_time() + f" ***get_random_token -> {result} ***\n")
         return ""
 
-def get_page_token():
-    result = suno_sqlite.query_one("select token from session where token != '' and status='200' and page=0 order by random()")
-    # print(result)
-    # print("\n")
-    if result:
-        print(local_time() + f" ***get_page_token -> {result[0]} ***\n")
-        return result[0]
-    else:
-        print(local_time() + f" ***get_page_token -> {result} ***\n")
-        return ""
+# def get_page_token():
+#     result = suno_sqlite.query_one("select token from session where token != '' and status='200' and page=0 order by random()")
+#     # print(result)
+#     # print("\n")
+#     if result:
+#         print(local_time() + f" ***get_page_token -> {result[0]} ***\n")
+#         return result[0]
+#     else:
+#         print(local_time() + f" ***get_page_token -> {result} ***\n")
+#         return ""
 # start_keep_alive()
