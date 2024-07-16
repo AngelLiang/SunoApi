@@ -559,11 +559,14 @@ if st.session_state['continue_at'] and st.session_state['continue_clip_id']:
 
 container2 = main_col.container(border=True)
 # 选择模型
-# options1 = container2.multiselect(
-#     i18n("Select Model"), ["chirp-v3-0", "chirp-v3-5"], ["chirp-v3-0"] if not st.session_state['model_name'] else st.session_state['model_name'].split(","), placeholder=i18n("Select Model Placeholder"), help=i18n("Select Model Help"), max_selections=1,
-#     disabled=True
-# )
-# st.session_state['model_name'] = ''.join(str(opts) for opts in options1)
+options1 = container2.multiselect(
+    i18n("Select Model"), ["chirp-v3-0", "chirp-v3-5"], ["chirp-v3-0"] if not st.session_state['model_name'] else st.session_state['model_name'].split(","),
+    placeholder=i18n("Select Model Placeholder"),
+    #  help=i18n("Select Model Help"),
+    max_selections=1,
+    disabled=True
+)
+st.session_state['model_name'] = ''.join(str(opts) for opts in options1)
 # print(st.session_state['model_name'])
 
 container1 = main_col.container(border=True)
