@@ -17,7 +17,7 @@
     "Title": "歌曲名称：",
     "Title Desc": "请输入歌曲名称，最多不超过100字数。",
     "Tags": "音乐风格：",
-    "Tags Desc": "请选择音乐风格，最多不超过四个风格。",
+    "Tags Desc": "请输入音乐风格。",
     "Prompt": "您的歌词：",
     "Prompt Desc": "请输入您的歌词，最多不超过3000字数。",
 
@@ -25,7 +25,7 @@
     "Random Lyrics": "随机歌词",
     "Generate Lyrics": "生成歌词",
 
-    "Title Placeholder": "给您的音乐歌曲起一个名称，以便识别、分享和发现。",
+    "Title Placeholder": "给您的音乐歌曲起一个名称。",
     "Tags Placeholder": "输入您想要的音乐风格，Suno AI的模型能理解流派和气氛。",
     "Prompt Placeholder": "输入您自己的歌词，或者是各种已经存在的歌词。",
 

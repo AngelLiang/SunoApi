@@ -165,7 +165,7 @@ def change_tags():
     st.session_state['tags_input'] = st.session_state['change_tags']
 
 def change_prompt():
-    """修改提示词"""
+    """修改音乐描述"""
     # print("st.session_state.change_prompt:" + st.session_state.change_prompt)
     st.session_state['prompt_input'] = st.session_state['change_prompt']
 
@@ -316,6 +316,15 @@ with container.container():
     else:
         Custom = cols[0].toggle(i18n("Custom"))
 
+
+    # 纯音乐
+    st.session_state.Instrumental = False
+    instrumental = cols[2].checkbox(i18n("Instrumental"), help=i18n("Instrumental Help"))
+    if instrumental:
+        st.session_state.Instrumental = True
+    else:
+        st.session_state.Instrumental = False
+
     # 图生乐模式
     # st.session_state.TuGeYue = False
     # TuGeYue = cols[1].toggle(i18n("Images TuGeYue Music"))
@@ -455,6 +464,7 @@ with container.container():
         if 'title_input' not in st.session_state:
             st.session_state['title_input'] = ""
 
+        # 歌曲名称
         Title = container.text_input(label=i18n("Title"), value=st.session_state['title_input'], placeholder=i18n("Title Placeholder"), max_chars=100, help=i18n("Title Desc"))
         st.session_state.Title = Title
         # print(st.session_state.Title)
@@ -468,14 +478,26 @@ with container.container():
             st.session_state.Tags = st.session_state['tags_input']
         else:
             # 多选框
-            options = container.multiselect(
-            i18n("Tags"),
-            ["  Country（乡村）","• Bluegrass（草莓乐）","• Country（乡村音乐）","• Folk（民谣）","  Dance（舞曲）","• Afro-Cuban（阿弗罗-古巴）","• Dance Pop（流行舞曲）","• Disco（迪斯科）","• Dubstep（配音步）","• Disco Funk（迪斯科放克）","• EDM（电子舞曲）","• Electro（电子）","• High-NRG（高能量）","• House（浩室音乐）","• Trance（迷幻舞曲）","  Downtempo（缓拍）","• Ambient（环境音）","• Drum'n'bass（鼓与贝斯）","• Dubstep（配音步）","• Electronic（电子音乐）","• IDM（智能舞曲）","• Synthpop（合成流行）","• Synthwave（合成波）","• Techno（技术音乐）","• Trap（陷阱音乐）","  Jazz/Soul（爵士/灵魂）","• Bebop（比博普）","• Gospel（福音）","• Jazz（爵士）","• Latin Jazz（拉丁爵士）","• RnB（节奏蓝调）","• Soul（灵魂乐）","  Latin（拉丁）","• Bossa Nova（波萨诺瓦）","• Latin Jazz（拉丁爵士）","• Forró（弗约罗）","• Salsa（萨尔萨舞）","• Tango（探戈）","  Reggae（雷鬼）","• Dancehall（舞厅）","• Dub（配音）","• Reggae（雷鬼）","• Reggaeton（雷盖顿）","• Afrobeat（非洲节奏）","  Metal（金属）","• Black Metal（黑金属）","• Deathcore（死亡核）","• Death Metal（死亡金属）","• Festive Heavy Metal（节日重金属）","• Heavy Metal（重金属）","• Nu Metal（新金属）","• Power Metal（力量金属）","• Metalcore（金属核）","  Popular（流行）","• Pop（流行音乐）","• Chinese pop（中国流行音乐）","• Dance Pop（流行舞曲）","• Pop Rock（流行摇滚）","• Kpop（韩流音乐）","• Jpop（日流音乐）","• RnB（节奏蓝调）","• Synthpop（合成流行）","  Rock（摇滚）","• Classic Rock（经典摇滚）","• Blues Rock（布鲁斯摇滚）","• Emo（情绪）","• Glam Rock（华丽摇滚）","• Indie（独立音乐）","• Industrial Rock（工业摇滚）","• Punk（朋克摇滚）","• Rock（摇滚）","• Skate Rock（滑板摇滚）","• Skatecore（滑板核）","  Urban（城市音乐）","• Funk（放克）","• HipHop（嘻哈）","• RnB（节奏蓝调）","• Phonk（酸音乐）","• Rap（说唱）","• Trap（陷阱音乐）","  Danceable（可跳舞的）","• Disco（迪斯科）","• Syncopated（切分节奏）","• Groovy（悠扬）","• Tipsy（微醺）","  Dark（黑暗）","• Dark（黑暗）","• Doom（末日）","• Dramatic（戏剧性）","• Sinister（阴险）","  Electric（电子）","• Art（艺术）","• Nu（新流行）","• Progressive（进步）","  Hard（强硬）","• Aggressive（激进）","• Banger（热门曲目）","• Power（力量）","• Stadium（体育场）","• Stomp（重踏）","  Lyrical（抒情的）","• Broadway（百老汇）","• Cabaret（歌舞表演）","• Lounge（酒吧歌手）","• Operatic（歌剧式的）","• Storytelling（讲故事）","• Torch-Lounge（酒吧歌曲）","• Theatrical（戏剧性的）","• Troubadour（吟游诗人）","• Vegas（拉斯维加斯风格）","  Magical（神奇）","• Ethereal（虚幻）","• Majestic（雄伟）","• Mysterious（神秘）","  Minimal（简约）","• Ambient（环境音乐）","• Cinematic（电影）","• Slow（缓慢）","• Sparse（稀疏）","  Party（派对）","• Glam（华丽）","• Glitter（闪耀）","• Groovy（悠扬）","• Grooveout（活力爆发）","  Soft（柔和）","• Ambient（环境音乐）","• Bedroom（卧室）","• Chillwave（轻松浪潮）","• Ethereal（虚幻）","• Intimate（亲密）","  Weird（奇怪）","• Carnival（嘉年华）","• Haunted（鬼屋）","• Random（随机）","• Musicbox（音乐盒）","• Hollow（空洞）","  World/Ethnic（世界/民族）","• Arabian（阿拉伯）","• Bangra（班格拉舞）","• Calypso（卡利普索）","• Egyptian（埃及）","• Adhan（安讫）","• Jewish Music（犹太音乐）","• Klezmer（克莱兹默音乐）","• Middle East（中东）","• Polka（波尔卡）","• Russian Navy Song（俄罗斯海军歌曲）","• Suomipop（芬兰流行音乐）","• Tribal（部落）","  BackGround（背景乐）","• Elevator（电梯音乐）","• Jingle（广告歌曲）","• Muzak（环境音乐）","  Call to Prayer（祈祷呼唤）","• Call to Prayer（祈祷呼唤）","• Gregorian Chant（格里高利圣歌）","  Character（角色）","• Strut（趾高气昂地走）","• March（进行曲）","• I Want Song（渴望之歌）","  Children（儿童）","• Children's（儿童的）","• Lullaby（摇篮曲）","• Sing-along（合唱歌曲）","  Retro（复古）","• 1960s（1960年代）","• Barbershop（理发店四重唱）","• Big Band（大乐队）","• Classic（经典的）","• Doo Wop（一种节奏蓝调风格的音乐）","• Girl Group（女子组合）","• Swing（摇摆乐）","• Traditional（传统的）","  Traditional（传统的）","• Barbershop（理发店四重唱）","• Christmas Carol（圣诞颂歌）","• Traditional（传统的）"],
-            [] if st.session_state['tags_input']=="" else st.session_state['tags_input'].split(","),
-            placeholder=i18n("Tags Placeholder"),
-            help=i18n("Tags Desc"),
-            max_selections=4)
-            st.session_state.Tags = ','.join(str(opts) for opts in options)
+            # options = container.multiselect(
+            # i18n("Tags"),
+            # ["  Country（乡村）","• Bluegrass（草莓乐）","• Country（乡村音乐）","• Folk（民谣）","  Dance（舞曲）","• Afro-Cuban（阿弗罗-古巴）","• Dance Pop（流行舞曲）","• Disco（迪斯科）","• Dubstep（配音步）","• Disco Funk（迪斯科放克）","• EDM（电子舞曲）","• Electro（电子）","• High-NRG（高能量）","• House（浩室音乐）","• Trance（迷幻舞曲）","  Downtempo（缓拍）","• Ambient（环境音）","• Drum'n'bass（鼓与贝斯）","• Dubstep（配音步）","• Electronic（电子音乐）","• IDM（智能舞曲）","• Synthpop（合成流行）","• Synthwave（合成波）","• Techno（技术音乐）","• Trap（陷阱音乐）","  Jazz/Soul（爵士/灵魂）","• Bebop（比博普）","• Gospel（福音）","• Jazz（爵士）","• Latin Jazz（拉丁爵士）","• RnB（节奏蓝调）","• Soul（灵魂乐）","  Latin（拉丁）","• Bossa Nova（波萨诺瓦）","• Latin Jazz（拉丁爵士）","• Forró（弗约罗）","• Salsa（萨尔萨舞）","• Tango（探戈）","  Reggae（雷鬼）","• Dancehall（舞厅）","• Dub（配音）","• Reggae（雷鬼）","• Reggaeton（雷盖顿）","• Afrobeat（非洲节奏）","  Metal（金属）","• Black Metal（黑金属）","• Deathcore（死亡核）","• Death Metal（死亡金属）","• Festive Heavy Metal（节日重金属）","• Heavy Metal（重金属）","• Nu Metal（新金属）","• Power Metal（力量金属）","• Metalcore（金属核）","  Popular（流行）","• Pop（流行音乐）","• Chinese pop（中国流行音乐）","• Dance Pop（流行舞曲）","• Pop Rock（流行摇滚）","• Kpop（韩流音乐）","• Jpop（日流音乐）","• RnB（节奏蓝调）","• Synthpop（合成流行）","  Rock（摇滚）","• Classic Rock（经典摇滚）","• Blues Rock（布鲁斯摇滚）","• Emo（情绪）","• Glam Rock（华丽摇滚）","• Indie（独立音乐）","• Industrial Rock（工业摇滚）","• Punk（朋克摇滚）","• Rock（摇滚）","• Skate Rock（滑板摇滚）","• Skatecore（滑板核）","  Urban（城市音乐）","• Funk（放克）","• HipHop（嘻哈）","• RnB（节奏蓝调）","• Phonk（酸音乐）","• Rap（说唱）","• Trap（陷阱音乐）","  Danceable（可跳舞的）","• Disco（迪斯科）","• Syncopated（切分节奏）","• Groovy（悠扬）","• Tipsy（微醺）","  Dark（黑暗）","• Dark（黑暗）","• Doom（末日）","• Dramatic（戏剧性）","• Sinister（阴险）","  Electric（电子）","• Art（艺术）","• Nu（新流行）","• Progressive（进步）","  Hard（强硬）","• Aggressive（激进）","• Banger（热门曲目）","• Power（力量）","• Stadium（体育场）","• Stomp（重踏）","  Lyrical（抒情的）","• Broadway（百老汇）","• Cabaret（歌舞表演）","• Lounge（酒吧歌手）","• Operatic（歌剧式的）","• Storytelling（讲故事）","• Torch-Lounge（酒吧歌曲）","• Theatrical（戏剧性的）","• Troubadour（吟游诗人）","• Vegas（拉斯维加斯风格）","  Magical（神奇）","• Ethereal（虚幻）","• Majestic（雄伟）","• Mysterious（神秘）","  Minimal（简约）","• Ambient（环境音乐）","• Cinematic（电影）","• Slow（缓慢）","• Sparse（稀疏）","  Party（派对）","• Glam（华丽）","• Glitter（闪耀）","• Groovy（悠扬）","• Grooveout（活力爆发）","  Soft（柔和）","• Ambient（环境音乐）","• Bedroom（卧室）","• Chillwave（轻松浪潮）","• Ethereal（虚幻）","• Intimate（亲密）","  Weird（奇怪）","• Carnival（嘉年华）","• Haunted（鬼屋）","• Random（随机）","• Musicbox（音乐盒）","• Hollow（空洞）","  World/Ethnic（世界/民族）","• Arabian（阿拉伯）","• Bangra（班格拉舞）","• Calypso（卡利普索）","• Egyptian（埃及）","• Adhan（安讫）","• Jewish Music（犹太音乐）","• Klezmer（克莱兹默音乐）","• Middle East（中东）","• Polka（波尔卡）","• Russian Navy Song（俄罗斯海军歌曲）","• Suomipop（芬兰流行音乐）","• Tribal（部落）","  BackGround（背景乐）","• Elevator（电梯音乐）","• Jingle（广告歌曲）","• Muzak（环境音乐）","  Call to Prayer（祈祷呼唤）","• Call to Prayer（祈祷呼唤）","• Gregorian Chant（格里高利圣歌）","  Character（角色）","• Strut（趾高气昂地走）","• March（进行曲）","• I Want Song（渴望之歌）","  Children（儿童）","• Children's（儿童的）","• Lullaby（摇篮曲）","• Sing-along（合唱歌曲）","  Retro（复古）","• 1960s（1960年代）","• Barbershop（理发店四重唱）","• Big Band（大乐队）","• Classic（经典的）","• Doo Wop（一种节奏蓝调风格的音乐）","• Girl Group（女子组合）","• Swing（摇摆乐）","• Traditional（传统的）","  Traditional（传统的）","• Barbershop（理发店四重唱）","• Christmas Carol（圣诞颂歌）","• Traditional（传统的）"],
+            # [] if st.session_state['tags_input']=="" else st.session_state['tags_input'].split(","),
+            # placeholder=i18n("Tags Placeholder"),
+            # help=i18n("Tags Desc"),
+            # max_selections=4)
+            # st.session_state.Tags = ','.join(str(opts) for opts in options)
+
+            Tags = container.text_area(
+                label=i18n("Tags"),
+                value=st.session_state['tags_input'],
+                placeholder=i18n("Tags Placeholder"), 
+                height=80, 
+                max_chars=120, 
+                help=i18n("Tags Desc"), 
+                key="change_tags", 
+                on_change=change_tags
+            )
+            st.session_state.Tags = Tags
 
         # print(st.session_state.Tags)
 
@@ -494,8 +516,36 @@ with container.container():
             # print(st.session_state['tags_input'])
             st.rerun()
 
+        if st.session_state['continue_at'] and st.session_state['continue_clip_id']:
+            Prompt = container.text_area(label=i18n("Prompt"), 
+            value=st.session_state['prompt_input'], 
+            placeholder=i18n("Extend Placeholder"), 
+            height=150, 
+            max_chars=3000, 
+            help=i18n("Prompt Desc"), 
+            key="change_prompt", 
+            on_change=change_prompt)
+        else:
+            Prompt = container.text_area(
+                label=i18n("Prompt"), 
+                value=st.session_state['prompt_input'], 
+                placeholder=i18n("Prompt Placeholder"), 
+                height=150, 
+                max_chars=3000, 
+                help=i18n("Prompt Desc"), 
+                key="change_prompt", 
+                on_change=change_prompt, 
+                disabled=st.session_state.Instrumental is True)
+        st.session_state.Prompt = Prompt
+        # print(st.session_state.Prompt)
+
+        cols = container.columns(2)
         # 生成歌词按钮
-        random_lyrics = cols[1].button(i18n("Generate Lyrics"), type="secondary")
+        random_lyrics = cols[0].button(
+            i18n("Generate Lyrics"), 
+            type="secondary", 
+            disabled=st.session_state.Instrumental is True
+        )
         if random_lyrics:
             lyrics = get_random_lyrics(Title if Title != "" else st.session_state['prompt_input'], get_random_token())
             status = lyrics["detail"] if "detail" in lyrics else (lyrics["status"] if "status" in lyrics else "success")
@@ -506,13 +556,7 @@ with container.container():
                 st.rerun()
             else:
                 container.error(status)
-                
-        if st.session_state['continue_at'] and st.session_state['continue_clip_id']:
-            Prompt = container.text_area(label=i18n("Prompt"), value=st.session_state['prompt_input'], placeholder=i18n("Extend Placeholder"), height=150, max_chars=3000, help=i18n("Prompt Desc"), key="change_prompt", on_change=change_prompt)
-        else:
-            Prompt = container.text_area(label=i18n("Prompt"), value=st.session_state['prompt_input'], placeholder=i18n("Prompt Placeholder"), height=150, max_chars=3000, help=i18n("Prompt Desc"), key="change_prompt", on_change=change_prompt)
-        st.session_state.Prompt = Prompt
-        # print(st.session_state.Prompt)
+
     else:
         # 非自定义模式
         st.session_state.Custom = False
@@ -525,28 +569,27 @@ with container.container():
         st.session_state.DescPrompt = DescPrompt
         # print(st.session_state.DescPrompt)
 
-with container.container():
-    # 生成两列布局
-    cols = container.columns(2)
+# with container.container():
+#     # 生成两列布局
+#     cols = container.columns(2)
 
-    st.session_state.Instrumental = False
-    instrumental = cols[0].checkbox(i18n("Instrumental"), help=i18n("Instrumental Help"))
-    if instrumental:
-        st.session_state.Instrumental = True
-        # print(st.session_state.Instrumental)
-    else:
-        st.session_state.Instrumental = False
-        # print(st.session_state.Instrumental)
+#     # 纯音乐
+#     st.session_state.Instrumental = False
+#     instrumental = cols[0].checkbox(i18n("Instrumental"), help=i18n("Instrumental Help"))
+#     if instrumental:
+#         st.session_state.Instrumental = True
+#     else:
+#         st.session_state.Instrumental = False
 
-    # 私有模式
-    st.session_state.Private = False
-    # private = cols[1].checkbox(i18n("Private"), help=i18n("Private Help"))
-    # if private:
-    #     st.session_state.Private = True
-    #     # print(st.session_state.Private)
-    # else:
-    #     st.session_state.Private = False
-        # print(st.session_state.Private)
+#     # 私有模式
+#     st.session_state.Private = False
+#     # private = cols[1].checkbox(i18n("Private"), help=i18n("Private Help"))
+#     # if private:
+#     #     st.session_state.Private = True
+#     #     # print(st.session_state.Private)
+#     # else:
+#     #     st.session_state.Private = False
+#         # print(st.session_state.Private)
 
 def continue_at_change():
     st.session_state['continue_at'] = st.session_state['continue_at_change']
