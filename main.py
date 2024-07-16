@@ -92,10 +92,10 @@ main_col = col1
 video_col = col2
 
 # 设置语言选择框
-main_col.selectbox(
-    label="Language", options=display_languages, label_visibility='collapsed',index=st.session_state.selected_index, key="selectbox_value", on_change=change_language,
-    disabled=True
-)
+# main_col.selectbox(
+#     label="Language", options=display_languages, label_visibility='collapsed',index=st.session_state.selected_index, key="selectbox_value", on_change=change_language,
+#     disabled=True
+# )
 
 
 def i18n(key):
@@ -459,6 +459,7 @@ with container.container():
         st.session_state.Title = Title
         # print(st.session_state.Title)
         
+        # 音乐风格
         if 'tags_input' not in st.session_state:
             st.session_state['tags_input'] = ""
 
@@ -466,6 +467,7 @@ with container.container():
             Tags = container.text_input(label=i18n("Tags"), value=st.session_state['tags_input'], placeholder=i18n("Tags Placeholder"), max_chars=120, help=i18n("Tags Desc"), key="change_tags", on_change=change_tags)
             st.session_state.Tags = st.session_state['tags_input']
         else:
+            # 多选框
             options = container.multiselect(
             i18n("Tags"),
             ["  Country（乡村）","• Bluegrass（草莓乐）","• Country（乡村音乐）","• Folk（民谣）","  Dance（舞曲）","• Afro-Cuban（阿弗罗-古巴）","• Dance Pop（流行舞曲）","• Disco（迪斯科）","• Dubstep（配音步）","• Disco Funk（迪斯科放克）","• EDM（电子舞曲）","• Electro（电子）","• High-NRG（高能量）","• House（浩室音乐）","• Trance（迷幻舞曲）","  Downtempo（缓拍）","• Ambient（环境音）","• Drum'n'bass（鼓与贝斯）","• Dubstep（配音步）","• Electronic（电子音乐）","• IDM（智能舞曲）","• Synthpop（合成流行）","• Synthwave（合成波）","• Techno（技术音乐）","• Trap（陷阱音乐）","  Jazz/Soul（爵士/灵魂）","• Bebop（比博普）","• Gospel（福音）","• Jazz（爵士）","• Latin Jazz（拉丁爵士）","• RnB（节奏蓝调）","• Soul（灵魂乐）","  Latin（拉丁）","• Bossa Nova（波萨诺瓦）","• Latin Jazz（拉丁爵士）","• Forró（弗约罗）","• Salsa（萨尔萨舞）","• Tango（探戈）","  Reggae（雷鬼）","• Dancehall（舞厅）","• Dub（配音）","• Reggae（雷鬼）","• Reggaeton（雷盖顿）","• Afrobeat（非洲节奏）","  Metal（金属）","• Black Metal（黑金属）","• Deathcore（死亡核）","• Death Metal（死亡金属）","• Festive Heavy Metal（节日重金属）","• Heavy Metal（重金属）","• Nu Metal（新金属）","• Power Metal（力量金属）","• Metalcore（金属核）","  Popular（流行）","• Pop（流行音乐）","• Chinese pop（中国流行音乐）","• Dance Pop（流行舞曲）","• Pop Rock（流行摇滚）","• Kpop（韩流音乐）","• Jpop（日流音乐）","• RnB（节奏蓝调）","• Synthpop（合成流行）","  Rock（摇滚）","• Classic Rock（经典摇滚）","• Blues Rock（布鲁斯摇滚）","• Emo（情绪）","• Glam Rock（华丽摇滚）","• Indie（独立音乐）","• Industrial Rock（工业摇滚）","• Punk（朋克摇滚）","• Rock（摇滚）","• Skate Rock（滑板摇滚）","• Skatecore（滑板核）","  Urban（城市音乐）","• Funk（放克）","• HipHop（嘻哈）","• RnB（节奏蓝调）","• Phonk（酸音乐）","• Rap（说唱）","• Trap（陷阱音乐）","  Danceable（可跳舞的）","• Disco（迪斯科）","• Syncopated（切分节奏）","• Groovy（悠扬）","• Tipsy（微醺）","  Dark（黑暗）","• Dark（黑暗）","• Doom（末日）","• Dramatic（戏剧性）","• Sinister（阴险）","  Electric（电子）","• Art（艺术）","• Nu（新流行）","• Progressive（进步）","  Hard（强硬）","• Aggressive（激进）","• Banger（热门曲目）","• Power（力量）","• Stadium（体育场）","• Stomp（重踏）","  Lyrical（抒情的）","• Broadway（百老汇）","• Cabaret（歌舞表演）","• Lounge（酒吧歌手）","• Operatic（歌剧式的）","• Storytelling（讲故事）","• Torch-Lounge（酒吧歌曲）","• Theatrical（戏剧性的）","• Troubadour（吟游诗人）","• Vegas（拉斯维加斯风格）","  Magical（神奇）","• Ethereal（虚幻）","• Majestic（雄伟）","• Mysterious（神秘）","  Minimal（简约）","• Ambient（环境音乐）","• Cinematic（电影）","• Slow（缓慢）","• Sparse（稀疏）","  Party（派对）","• Glam（华丽）","• Glitter（闪耀）","• Groovy（悠扬）","• Grooveout（活力爆发）","  Soft（柔和）","• Ambient（环境音乐）","• Bedroom（卧室）","• Chillwave（轻松浪潮）","• Ethereal（虚幻）","• Intimate（亲密）","  Weird（奇怪）","• Carnival（嘉年华）","• Haunted（鬼屋）","• Random（随机）","• Musicbox（音乐盒）","• Hollow（空洞）","  World/Ethnic（世界/民族）","• Arabian（阿拉伯）","• Bangra（班格拉舞）","• Calypso（卡利普索）","• Egyptian（埃及）","• Adhan（安讫）","• Jewish Music（犹太音乐）","• Klezmer（克莱兹默音乐）","• Middle East（中东）","• Polka（波尔卡）","• Russian Navy Song（俄罗斯海军歌曲）","• Suomipop（芬兰流行音乐）","• Tribal（部落）","  BackGround（背景乐）","• Elevator（电梯音乐）","• Jingle（广告歌曲）","• Muzak（环境音乐）","  Call to Prayer（祈祷呼唤）","• Call to Prayer（祈祷呼唤）","• Gregorian Chant（格里高利圣歌）","  Character（角色）","• Strut（趾高气昂地走）","• March（进行曲）","• I Want Song（渴望之歌）","  Children（儿童）","• Children's（儿童的）","• Lullaby（摇篮曲）","• Sing-along（合唱歌曲）","  Retro（复古）","• 1960s（1960年代）","• Barbershop（理发店四重唱）","• Big Band（大乐队）","• Classic（经典的）","• Doo Wop（一种节奏蓝调风格的音乐）","• Girl Group（女子组合）","• Swing（摇摆乐）","• Traditional（传统的）","  Traditional（传统的）","• Barbershop（理发店四重唱）","• Christmas Carol（圣诞颂歌）","• Traditional（传统的）"],
@@ -479,6 +481,7 @@ with container.container():
 
         container.container()
         cols = container.columns(2)
+        # 随机风格按钮
         random_style = cols[0].button(i18n("Random Style"), type="secondary")
         if random_style:
             # print(st.session_state.Tags)
@@ -491,10 +494,12 @@ with container.container():
             # print(st.session_state['tags_input'])
             st.rerun()
 
+        # 生成歌词按钮
         random_lyrics = cols[1].button(i18n("Generate Lyrics"), type="secondary")
         if random_lyrics:
             lyrics = get_random_lyrics(Title if Title != "" else st.session_state['prompt_input'], get_random_token())
             status = lyrics["detail"] if "detail" in lyrics else (lyrics["status"] if "status" in lyrics else "success")
+            # 无错误
             if status != "Unauthorized" and status != "Error" and status != "Expecting value: line 1 column 1 (char 0)":
                 st.session_state['title_input'] = lyrics['title'] if lyrics['title'] != "" else Title
                 st.session_state['prompt_input'] = lyrics['text'] if lyrics['title'] != "" else (st.session_state['prompt_input'] if st.session_state['prompt_input'] != "" else "")
@@ -509,6 +514,7 @@ with container.container():
         st.session_state.Prompt = Prompt
         # print(st.session_state.Prompt)
     else:
+        # 非自定义模式
         st.session_state.Custom = False
         # print(st.session_state.Custom)
 
@@ -563,79 +569,79 @@ container2 = main_col.container(border=True)
 container1 = main_col.container(border=True)
 
 # 设置信息
-st.session_state.Setting = False
-Setting = container1.toggle(i18n("Setting"))
+# st.session_state.Setting = False
+# Setting = container1.toggle(i18n("Setting"))
 
 identity = ""
 Session = ""
 Cookie = ""
 
 # 设置
-if Setting:
-    st.session_state.Setting = True
-    # print(st.session_state.Setting)
+# if Setting:
+#     st.session_state.Setting = True
+#     # print(st.session_state.Setting)
 
-    if "Identity" not in st.session_state:
-        pass
-    else:
-        identity = st.session_state.Identity
+#     if "Identity" not in st.session_state:
+#         pass
+#     else:
+#         identity = st.session_state.Identity
 
-    # 查询数据库
-    result = suno_sqlite.query_one("select id,identity,[session],cookie from session where identity =?", (identity,))
-    print(result)
-    print("\n")
-    if result:
-        # 如果存在则直接使用
-        identity = result[1]
-        Session = result[2]
-        Cookie = result[3]
+#     # 查询数据库
+#     result = suno_sqlite.query_one("select id,identity,[session],cookie from session where identity =?", (identity,))
+#     print(result)
+#     print("\n")
+#     if result:
+#         # 如果存在则直接使用
+#         identity = result[1]
+#         Session = result[2]
+#         Cookie = result[3]
         
-    Identity = container1.text_input(label="Identity:", value=identity, placeholder=i18n("Identity Placeholder"), max_chars=50, help=i18n("Identity Help"))
-    st.session_state.Identity = Identity
-    # print(st.session_state.Identity)
-    Session = container1.text_input(label="Session:", value=Session, placeholder=i18n("Session Placeholder"),max_chars=50, help=i18n("Session Help"))
-    st.session_state.Session = Session
-    # print(st.session_state.Session)
-    Cookie = container1.text_area(label="Cookie:", value=Cookie, placeholder=i18n("Cookie Placeholder"), height=150, max_chars=2000, help=i18n("Cookie Help"))
-    st.session_state.Cookie = Cookie
-    # print(st.session_state.Cookie)
+#     Identity = container1.text_input(label="Identity:", value=identity, placeholder=i18n("Identity Placeholder"), max_chars=50, help=i18n("Identity Help"))
+#     st.session_state.Identity = Identity
+#     # print(st.session_state.Identity)
+#     Session = container1.text_input(label="Session:", value=Session, placeholder=i18n("Session Placeholder"),max_chars=50, help=i18n("Session Help"))
+#     st.session_state.Session = Session
+#     # print(st.session_state.Session)
+#     Cookie = container1.text_area(label="Cookie:", value=Cookie, placeholder=i18n("Cookie Placeholder"), height=150, max_chars=2000, help=i18n("Cookie Help"))
+#     st.session_state.Cookie = Cookie
+#     # print(st.session_state.Cookie)
 
-    st.session_state.SaveInfo = False
-    SaveInfo = container1.button(i18n("SaveInfo"))
-    if SaveInfo:
-        st.session_state.SaveInfo = True
-        if Identity == "":
-            placeholder.error(i18n("SaveInfo Identity Error"))
-        elif Session == "":
-            placeholder.error(i18n("SaveInfo Session Error"))
-        elif Cookie == "":
-            placeholder.error(i18n("SaveInfo Cookie Error"))
-        elif len(Cookie) < 500:
-            placeholder.error(i18n("SaveInfo Cookie Error"))
-        else:
-            result = suno_sqlite.query_one("select id,identity,[session],cookie from session where identity =?", (Identity,))
-            print(result)
-            print("\n")
-            if result:
-                result = suno_sqlite.operate_one("update session set session=?, cookie=?, token=? where identity =?", (Session, Cookie, Identity,""))
-            else:
-                result = suno_sqlite.operate_one("insert into session (identity,session,cookie,token) values(?,?,?,?)", (Identity, Session, Cookie,""))
+#     st.session_state.SaveInfo = False
+#     SaveInfo = container1.button(i18n("SaveInfo"))
+#     if SaveInfo:
+#         st.session_state.SaveInfo = True
+#         if Identity == "":
+#             placeholder.error(i18n("SaveInfo Identity Error"))
+#         elif Session == "":
+#             placeholder.error(i18n("SaveInfo Session Error"))
+#         elif Cookie == "":
+#             placeholder.error(i18n("SaveInfo Cookie Error"))
+#         elif len(Cookie) < 500:
+#             placeholder.error(i18n("SaveInfo Cookie Error"))
+#         else:
+#             result = suno_sqlite.query_one("select id,identity,[session],cookie from session where identity =?", (Identity,))
+#             print(result)
+#             print("\n")
+#             if result:
+#                 result = suno_sqlite.operate_one("update session set session=?, cookie=?, token=? where identity =?", (Session, Cookie, Identity,""))
+#             else:
+#                 result = suno_sqlite.operate_one("insert into session (identity,session,cookie,token) values(?,?,?,?)", (Identity, Session, Cookie,""))
 
-            if result:
-                st.session_state.Identity = Identity
-                # 创建新的suno认证
-                new_suno_auth(Identity, Session, Cookie)
-                # print(st.session_state.Identity)
-                placeholder.empty()
-                main_col.success(i18n("SaveInfo Success"))
-            else:
-                placeholder.error(i18n("SaveInfo Error"))
-            print(result)
-            print("\n")
-            # print(st.session_state.SaveInfo)
-    else:
-        st.session_state.SaveInfo = False
-        # print(st.session_state.SaveInfo)
+#             if result:
+#                 st.session_state.Identity = Identity
+#                 # 创建新的suno认证
+#                 new_suno_auth(Identity, Session, Cookie)
+#                 # print(st.session_state.Identity)
+#                 placeholder.empty()
+#                 main_col.success(i18n("SaveInfo Success"))
+#             else:
+#                 placeholder.error(i18n("SaveInfo Error"))
+#             print(result)
+#             print("\n")
+#             # print(st.session_state.SaveInfo)
+#     else:
+#         st.session_state.SaveInfo = False
+#         # print(st.session_state.SaveInfo)
 
 st.session_state.token = ""
 st.session_state.suno_auth = None
@@ -658,53 +664,54 @@ def localdatetime(str):
     # print(localdt.strftime('%Y-%m-%d %H:%M:%S'))
     return localdt.strftime('%Y-%m-%d %H:%M:%S')
 
+# 获取音乐容器
+# container2 = main_col.container(border=True)
 
-container2 = main_col.container(border=True)
+# 获取音乐
+# st.session_state.FetchFeed = False
+# FetchFeed = container2.toggle(i18n("FetchFeed"))
 
-st.session_state.FetchFeed = False
-FetchFeed = container2.toggle(i18n("FetchFeed"))
-
-if FetchFeed:
-    st.session_state.FetchFeed = True
-    # print(st.session_state.FetchFeed)
+# if FetchFeed:
+#     st.session_state.FetchFeed = True
+#     # print(st.session_state.FetchFeed)
         
-    FeedID = container2.text_input(label=i18n("FeedID"), value="", placeholder=i18n("FeedID Placeholder"), max_chars=100, help=i18n("FeedID Help"))
-    st.session_state.FeedID = FeedID
-    # print(st.session_state.FeedID)
+#     FeedID = container2.text_input(label=i18n("FeedID"), value="", placeholder=i18n("FeedID Placeholder"), max_chars=100, help=i18n("FeedID Help"))
+#     st.session_state.FeedID = FeedID
+#     # print(st.session_state.FeedID)
     
-    st.session_state.FeedBtn = False
-    FeedBtn = container2.button(i18n("FeedBtn"))
-    if FeedBtn:
-        st.session_state.FeedBtn = True
-        if FeedID == "":
-            placeholder.error(i18n("FetchFeed FeedID Empty"))
-        elif "add" in FeedID:
-            for item in FeedID.split(" ")[1].split(","):
-                result = suno_sqlite.operate_one("update music set private=0 where aid=?", (item,))
-                placeholder.success(i18n("FetchFeed Success") + item)
-        elif "del" in FeedID:
-            for item in FeedID.split(" ")[1].split(","):
-                result = suno_sqlite.operate_one("update music set private=1 where aid=?", (item,))
-                placeholder.success(i18n("FetchFeed Success") + item)
-        elif len(FeedID) >= 36:
-           FeedIDs = FeedID.split(",")
-           token = get_random_token()
-           fetch_feed(FeedIDs, token)
-        else:
-           FeedIDs = FeedID*1
-           count = 0
-           for i in range(int(FeedIDs), -1, -1):
-               print(i, end=" ")
-               token = get_random_token()
-               fetch_feed(str(i), token)
-               #time.sleep(3)
-               count += 1
-               if count % 5 == 0:
-                   print(end="\n")
-                   #time.sleep(5)
-    else:
-        st.session_state.FeedBtn = False
-        # print(st.session_state.FeedBtn)
+#     st.session_state.FeedBtn = False
+#     FeedBtn = container2.button(i18n("FeedBtn"))
+#     if FeedBtn:
+#         st.session_state.FeedBtn = True
+#         if FeedID == "":
+#             placeholder.error(i18n("FetchFeed FeedID Empty"))
+#         elif "add" in FeedID:
+#             for item in FeedID.split(" ")[1].split(","):
+#                 result = suno_sqlite.operate_one("update music set private=0 where aid=?", (item,))
+#                 placeholder.success(i18n("FetchFeed Success") + item)
+#         elif "del" in FeedID:
+#             for item in FeedID.split(" ")[1].split(","):
+#                 result = suno_sqlite.operate_one("update music set private=1 where aid=?", (item,))
+#                 placeholder.success(i18n("FetchFeed Success") + item)
+#         elif len(FeedID) >= 36:
+#            FeedIDs = FeedID.split(",")
+#            token = get_random_token()
+#            fetch_feed(FeedIDs, token)
+#         else:
+#            FeedIDs = FeedID*1
+#            count = 0
+#            for i in range(int(FeedIDs), -1, -1):
+#                print(i, end=" ")
+#                token = get_random_token()
+#                fetch_feed(str(i), token)
+#                #time.sleep(3)
+#                count += 1
+#                if count % 5 == 0:
+#                    print(end="\n")
+#                    #time.sleep(5)
+#     else:
+#         st.session_state.FeedBtn = False
+#         # print(st.session_state.FeedBtn)
 
 if st.session_state['continue_at'] and st.session_state['continue_clip_id']:
     StartBtn = main_col.button(i18n("Extend Button"), use_container_width=True, type="primary", disabled=False)
@@ -750,6 +757,17 @@ def generate_with_song_description(data: schemas.DescriptionModeGenerateParam):
 
 
 def fetch_status(aid: str, twice=False):
+    """
+    获取指定aid的状态信息，并更新数据库中的相应条目。
+    
+    Args:
+        aid (str): 任务的唯一标识符。
+        twice (bool, optional): 是否二次检查URL是否可用。默认为False。
+    
+    Returns:
+        dict: 包含任务详细信息的字典。
+    
+    """
     progress_text = i18n("Fetch Status Progress")
     my_bar = main_col.progress(0, text=progress_text)
     percent_complete = 0
@@ -790,8 +808,10 @@ def fetch_status(aid: str, twice=False):
             st.session_state.token = get_random_token()
             continue
         elif status == "Not found.":
+            # 找不到
             continue
         elif status == "error":
+            # 错误
             my_bar.empty()
         else:
             progress_text = i18n("Fetch Status Running") + status
@@ -813,7 +833,7 @@ def fetch_status(aid: str, twice=False):
             break
 
         time.sleep(10)
-    # 替换音频视频地址
+    # 如果配置了S3_WEB_SITE_URL，替换音频视频地址
     if S3_WEB_SITE_URL is not None and ("s3.bitiful.net" in S3_WEB_SITE_URL or S3_WEB_SITE_URL != "https://cdn1.suno.ai"):
         resp[0]["audio_url"] = resp[0]["audio_url"].replace(S3_WEB_SITE_URL, 'https://res.sunoapi.net')
         resp[0]["video_url"] = resp[0]["video_url"].replace(S3_WEB_SITE_URL, 'https://res.sunoapi.net')
