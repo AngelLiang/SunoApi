@@ -217,6 +217,16 @@ def clear_task():
 
 suno_auths = []
 def get_suno_auth():
+    """
+    从suno_auths列表中随机选择一个可用的SunoAuth对象，如果所有SunoAuth对象均不可用，则返回一个新的SunoCookie对象。
+    
+    Args:
+        无
+    
+    Returns:
+        Union[SunoAuth, SunoCookie]: 如果suno_auths列表中存在可用的SunoAuth对象，则返回该对象；否则返回一个新的SunoCookie对象。
+    
+    """
     if len(suno_auths) > 0:
         suno_auth = random.choice(suno_auths)
         if suno_auth.get_token() == "401":

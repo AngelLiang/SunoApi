@@ -712,6 +712,19 @@ else:
     StartBtn = main_col.button(i18n("Generate"), use_container_width=True, type="primary", disabled=False)
 
 def generate(data: schemas.CustomModeGenerateParam):
+    """
+    根据提供的参数生成音乐，并返回响应结果。
+    
+    Args:
+        data (schemas.CustomModeGenerateParam): 包含生成音乐所需参数的对象。
+    
+    Returns:
+        dict: 包含生成音乐响应结果的字典，成功时包含生成的音乐信息，失败时包含错误信息。
+    
+    Raises:
+        无特定异常类型，但捕获所有异常并返回包含错误信息的字典。
+    
+    """
     try:
         resp = generate_music(data, get_random_token())
         return resp
@@ -719,6 +732,16 @@ def generate(data: schemas.CustomModeGenerateParam):
         return {"detail":str(e)}
 
 def generate_with_song_description(data: schemas.DescriptionModeGenerateParam):
+    """
+    根据歌曲描述信息生成音乐数据
+    
+    Args:
+        data (schemas.DescriptionModeGenerateParam): 包含歌曲描述信息的参数对象
+    
+    Returns:
+        dict: 包含生成音乐数据的字典。如果生成过程中发生异常，则返回包含异常信息的字典。
+    
+    """
     try:
         resp = generate_music(data, get_random_token())
         return resp

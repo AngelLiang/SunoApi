@@ -193,6 +193,17 @@ def local_time():
     return  time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
 def check_url_available(url, twice=False):
+    """
+    检查URL是否可访问，并判断文件大小是否大于1MB。
+    
+    Args:
+        url (str): 待检查的URL地址。
+        twice (bool, optional): 是否进行两次检查。默认为False。
+    
+    Returns:
+        None: 此函数没有返回值，但会打印出检查结果。
+    
+    """
     if S3_WEB_SITE_URL is None or S3_WEB_SITE_URL == "https://cdn1.suno.ai":
         pass
     elif S3_WEB_SITE_URL is not None and "s3.bitiful.net" in S3_WEB_SITE_URL:
@@ -212,6 +223,16 @@ def check_url_available(url, twice=False):
     time.sleep(3)
 
 def get_file_size(url):
+    """
+    获取指定URL的文件大小（以字节为单位）。
+    
+    Args:
+        url (str): 要获取文件大小的URL地址。
+    
+    Returns:
+        int: 文件大小（以字节为单位），如果获取失败则返回0。
+    
+    """
     try:
         requests.packages.urllib3.disable_warnings()
         resp = requests.head(url, verify=False, proxies=proxies)
@@ -319,6 +340,21 @@ def put_upload_file(siteurl, filename, s3accessKeyId, s3SecretKeyId, data):
         return {"detail":str(e)}
 
 def suno_upload_audio(filename, bytes_data, token, my_bar):
+    """
+    将音频文件上传到Suno平台，并返回clip_id。
+    
+    Args:
+        filename (str): 音频文件名。
+        bytes_data (bytes): 音频文件二进制数据。
+        token (str): 用于授权的token。
+        my_bar (ProgressBar): 进度条对象，用于显示上传进度。
+    
+    Returns:
+        dict: 包含clip_id的字典，若上传失败则返回包含错误信息的字典。
+    
+    Raises:
+        无特定异常类型，但可能捕获并返回各种异常信息（如网络错误、认证失败等）。
+    """
     try:
         upload_url = f"{BASE_URL}/api/uploads/audio/"
         data = {"extension": "mp3"}
