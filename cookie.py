@@ -149,9 +149,24 @@ def page_feed(suno_cookie: SunoCookie):
                 print(result)
                 print("\n")
                 if result:
-                    result = suno_sqlite.operate_one("update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", (str(row), row["user_id"], row["display_name"], row["image_url"], row["title"], row["metadata"]["tags"], row["metadata"]["gpt_description_prompt"], row["metadata"]["duration"], row["status"], row["id"]))
+                    result = suno_sqlite.operate_one(
+                        "update music set data=?, updated=(datetime('now', 'localtime')), sid=?, name=?, image=?, title=?, tags=?, prompt=?, duration=?, status=? where aid =?", 
+                        (
+                            json.dumps(row), 
+                            row["user_id"], 
+                            row["display_name"], 
+                            row["image_url"], 
+                            row["title"], 
+                            row["metadata"]["tags"], 
+                            row["metadata"]["gpt_description_prompt"], 
+                            row["metadata"]["duration"], 
+                            row["status"], 
+                            row["id"])
+                    )
                 else:
-                    result = suno_sqlite.operate_one("insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", (str(row["id"]), str(row), row["user_id"], row["display_name"], row["image_url"], row["title"], row["metadata"]["tags"], row["metadata"]["gpt_description_prompt"], row["metadata"]["duration"], row["status"], 0))
+                    result = suno_sqlite.operate_one(
+                        "insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", (str(row["id"]), json.dumps(row), row["user_id"], row["display_name"], row["image_url"], row["title"], row["metadata"]["tags"], row["metadata"]["gpt_description_prompt"], row["metadata"]["duration"], row["status"], 0)
+                    )
                 print(result)
                 print("\n")
                 status = resp["detail"] if "detail" in resp else row["status"]

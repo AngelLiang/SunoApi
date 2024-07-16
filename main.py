@@ -124,24 +124,31 @@ main_col = col1
 video_col = col2
 
 def show_music_list():
-    st.session_state.user_music_list = suno_sqlite.get_user_music_list(st.session_state.user_uuid)
+    user_music_list = suno_sqlite.get_user_music_list(st.session_state.user_uuid)
+    st.session_state.user_music_list = user_music_list
     # 显示自己的音乐列表
     with video_col.container(border=True):
         video_col.write("我创建的")
-        if not st.session_state.user_music_list:
-            pass
-
-        for user_music in st.session_state.user_music_list:
+        for user_music in user_music_list:
             title = user_music.title
             image_url = user_music.image_url
             audio_url = user_music.audio_url
             video_url = user_music.video_url
 
+            # 使用video_col直接进行列划分
             col1, col2 = video_col.columns([1, 4])
             col1.image(image_url, use_column_width=True)
             col2.write(title)
-            col2.empty()
+            # col2.download_button(label="下载音频", data=audio_url, file_name=title + ".mp3", key=user_music.id)
             col2.audio(audio_url)
+
+            # col2.download_button(label="下载音频", data=audio_url, file_name=title + ".mp3", key=user_music.id)
+            # col2.download_button(label="下载视频", data=video_url, file_name=title + ".mp4")
+            # # 在col2内部进行子列划分
+            # with col2.container(border=True):
+            #     col2_1, col2_2 = col2.columns(2)
+            #     col2_1.download_button(label="下载音频", data=audio_url, file_name=title + ".mp3")
+            #     col2_2.download_button(label="下载视频", data=video_url, file_name=title + ".mp4")
         
 show_music_list()
 
