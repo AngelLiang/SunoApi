@@ -196,7 +196,11 @@ class SqliteTool():
             return []
         music_list = []
         for item in result:
-            music_list.append(Music.parse_raw(item[0]))
+            try:
+                music = Music.parse_raw(item[0])
+            except Exception:
+                continue
+            music_list.append(music)
         return music_list
 
     def get_user_music_count(self, user_cookie:str) -> int:

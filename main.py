@@ -1241,7 +1241,7 @@ if StartBtn :
                     # )
                     suno_sqlite.user_add_music(
                         str(resp["clips"][0]["id"]), 
-                        resp["clips"][1],
+                        json.dumps(resp["clips"][1]),
                         st.session_state.Private, 
                         st.session_state.user_uuid
                     )
@@ -1252,8 +1252,8 @@ if StartBtn :
                     resp0 = fetch_status(resp["clips"][0]["id"], False)
                     if resp0[0]["status"] == "complete":
                         # video_col.audio(resp0[0]["audio_url"] + "?play=true")
-                        # video_col.video(resp0[0]["video_url"] + "?play=true")
-                        show_music_list()
+                        video_col.video(resp0[0]["video_url"] + "?play=true")
+                        # show_music_list()
                         # center_col.image(resp0[0]["image_large_url"])
                         placeholder.empty()
                         st.session_state.DescPrompt = ""
@@ -1273,7 +1273,7 @@ if StartBtn :
                     # )
                     suno_sqlite.user_add_music(
                         str(resp["clips"][1]["id"]), 
-                        resp["clips"][1],
+                        json.dumps(resp["clips"][1]),
                         st.session_state.Private, 
                         st.session_state.user_uuid
                     )
@@ -1297,8 +1297,8 @@ if StartBtn :
             resp0 = fetch_status(st.session_state['clips_0'], False)
             if resp0[0]["status"] == "complete":
                 # video_col.audio(resp0[0]["audio_url"] + "?play=true")
-                # video_col.video(resp0[0]["video_url"] + "?play=true")
-                show_music_list()
+                video_col.video(resp0[0]["video_url"] + "?play=true")
+                # show_music_list()
                 # center_col.image(resp0[0]["image_large_url"])
                 placeholder.empty()
                 main_col.success(i18n("Generate Success") + resp0[0]["id"])
