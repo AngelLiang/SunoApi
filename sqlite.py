@@ -185,6 +185,8 @@ class SqliteTool():
 
     def get_user_music_list(self, user_cookie:str) -> List[Music]:
         result =  self.query_many("select data from music where user_cookie = ?", (user_cookie,))
+        if not result:
+            return []
         music_list = []
         for item in result:
             music_list.append(Music.parse_raw(item[0]))
