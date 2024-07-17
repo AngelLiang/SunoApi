@@ -187,7 +187,11 @@ class SqliteTool():
         if offset is None or limit is None:
             result =  self.query_many("select data from music where user_cookie = ?", (user_cookie,))
         else:
-            result =  self.query_many("select data from music where user_cookie = ? LIMIT ? OFFSET ?", (user_cookie, limit, offset))
+            result =  self.query_many(
+                "select data from music where user_cookie = ? \
+                ORDER BY created \
+                LIMIT ? OFFSET ? ",
+                (user_cookie, limit, offset))
         if not result:
             return []
         music_list = []
