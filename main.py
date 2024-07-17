@@ -60,14 +60,16 @@ def init_cookie() -> str:
     return cookies['uuid']
 
 
-st.set_page_config(page_title="SunoAPI AI Music Generator",
+st.set_page_config(page_title="AI音乐创作工具",
                    page_icon="🎵",
                    layout="wide",
+                #    侧边栏初始状态
                    initial_sidebar_state="collapsed",
-                   menu_items={
-                       'Report a bug': "https://github.com/SunoApi/SunoApi/issues",
-                       'About': "SunoAPI AI Music Generator is a free AI music generation software, calling the existing API interface to achieve AI music generation. If you have any questions, please visit our website url address: https://sunoapi.net\n\nDisclaimer: Users voluntarily input their account information that has not been recharged to generate music. Each account can generate five songs for free every day, and we will not use them for other purposes. Please rest assured to use them! If there are 10000 users, the system can generate 50000 songs for free every day. Please try to save usage, as each account can only generate five songs for free every day. If everyone generates more than five songs per day, it is still not enough. The ultimate goal is to keep them available for free generation at any time when needed.\n\n"
-                   })
+                #    menu_items={
+                #        'Report a bug': "https://github.com/SunoApi/SunoApi/issues",
+                #        'About': "SunoAPI AI Music Generator is a free AI music generation software, calling the existing API interface to achieve AI music generation. If you have any questions, please visit our website url address: https://sunoapi.net\n\nDisclaimer: Users voluntarily input their account information that has not been recharged to generate music. Each account can generate five songs for free every day, and we will not use them for other purposes. Please rest assured to use them! If there are 10000 users, the system can generate 50000 songs for free every day. Please try to save usage, as each account can only generate five songs for free every day. If everyone generates more than five songs per day, it is still not enough. The ultimate goal is to keep them available for free generation at any time when needed.\n\n"
+                #    }
+                   )
 
 hide_streamlit_style = """
 <style>#root > div:nth-child(1) > div > div > div > div > section > div {padding-top: 2rem;}</style>
