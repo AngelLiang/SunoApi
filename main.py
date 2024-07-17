@@ -129,6 +129,13 @@ video_col = col2
 music_col = col3
 
 
+def show_video(video_url: str):
+    if "video_slot" in st.session_state:
+        st.session_state.video_slot.empty()
+    st.session_state.video_slot = video_col.empty()
+    st.session_state.video_slot.video(video_url + "?autoplay=1")
+
+
 def show_music_list():
     # 显示自己的音乐列表
     music_container = music_col.container()
@@ -165,14 +172,17 @@ def show_music_list():
         music_container.title("我创建的")
         music_container.text("音乐列表")
         # music_list_container = music_container.container(border=True)
-        for user_music in user_music_list:
+        for i, user_music in enumerate(user_music_list):
             title = user_music.title
             image_url = user_music.image_url
             audio_url = user_music.audio_url
             video_url = user_music.video_url
             tags = user_music.metadata.tags
 
-            # 使用video_col直接进行列划分
+            if i == 0:
+                show_video(video_url)
+
+            # 直接进行列划分
             music_detail_container = music_container.container(border=True)
             col1, col2 = music_detail_container.columns([1, 3])
             col1.image(image_url, use_column_width=True)
@@ -1147,15 +1157,6 @@ if StartBtn :
                 if status == "running" or status == "complete":
                     st.session_state['disabled_state'] = True
                     # 插入一条音乐数据
-                    # result = suno_sqlite.operate_one(
-                    #     "insert into music (aid, data, private, user_cookie) values(?,?,?,?)", 
-                    #     (
-                    #         str(resp["clips"][0]["id"]), 
-                    #         str(resp["clips"][0]), 
-                    #         st.session_state.Private,
-                    #         st.session_state.user_uuid
-                    #     )
-                    # )
                     suno_sqlite.user_add_music(
                         str(resp["clips"][0]["id"]), 
                         resp["clips"][1],
@@ -1169,8 +1170,11 @@ if StartBtn :
                     # 获取第一首音乐信息
                     resp0 = fetch_status(resp["clips"][0]["id"], False)
                     if resp0[0]["status"] == "complete":
-                        video_col.audio(resp0[0]["audio_url"] + "?play=true")
-                        video_col.video(resp0[0]["video_url"] + "?play=true")
+                        # 气球效果
+                        # st.balloons()
+                        # video_col.audio(resp0[0]["audio_url"] + "?play=true")
+                        # video_col.video(resp0[0]["video_url"] + "?play=true")
+                        show_video(resp0[0]["video_url"])
                         # center_col.image(resp0[0]["image_large_url"])
                         placeholder.empty()
                         main_col.success(i18n("Generate Success") + resp0[0]["id"])
@@ -1178,15 +1182,6 @@ if StartBtn :
                         placeholder.error(i18n("Generate Status Error")  + (resp0[0]['status'] if resp0[0]['metadata']["error_message"] is None else resp0[0]['metadata']["error_message"]))
                     
                     # 插入一条音乐数据
-                    # result = suno_sqlite.operate_one(
-                    #     "insert into music (aid, data, private, user_cookie) values(?,?,?,?)", 
-                    #     (
-                    #         str(resp["clips"][1]["id"]), 
-                    #         str(resp["clips"][1]), 
-                    #         st.session_state.Private,
-                    #         st.session_state.user_uuid
-                    #     )
-                    # )
                     suno_sqlite.user_add_music(
                         str(resp["clips"][1]["id"]), 
                         resp["clips"][1],
@@ -1202,6 +1197,7 @@ if StartBtn :
                         # col3.audio(resp1[0]["audio_url"] + "?play=true")
                         # col3.video(resp1[0]["video_url"] + "?play=true")
                         # col3.image(resp1[0]["image_large_url"])
+                        show_video(resp0[0]["video_url"])
                         placeholder.empty()
                         main_col.success(i18n("Generate Success") + resp1[0]["id"])
                     else:
@@ -1230,15 +1226,6 @@ if StartBtn :
                 if status == "running" or status == "complete":
                     st.session_state['disabled_state'] = True
                     # 插入一条音乐数据
-                    # result = suno_sqlite.operate_one(
-                    #     "insert into music (aid, data, private, user_cookie) values(?,?,?,?)", 
-                    #     (
-                    #         str(resp["clips"][0]["id"]), 
-                    #         str(resp["clips"][0]), 
-                    #         st.session_state.Private,
-                    #         st.session_state.user_uuid,
-                    #     )
-                    # )
                     suno_sqlite.user_add_music(
                         str(resp["clips"][0]["id"]), 
                         json.dumps(resp["clips"][1]),
@@ -1252,7 +1239,8 @@ if StartBtn :
                     resp0 = fetch_status(resp["clips"][0]["id"], False)
                     if resp0[0]["status"] == "complete":
                         # video_col.audio(resp0[0]["audio_url"] + "?play=true")
-                        video_col.video(resp0[0]["video_url"] + "?play=true")
+                        # video_col.video(resp0[0]["video_url"] + "?play=true")
+                        show_video(resp0[0]["video_url"])
                         # show_music_list()
                         # center_col.image(resp0[0]["image_large_url"])
                         placeholder.empty()
@@ -1297,7 +1285,8 @@ if StartBtn :
             resp0 = fetch_status(st.session_state['clips_0'], False)
             if resp0[0]["status"] == "complete":
                 # video_col.audio(resp0[0]["audio_url"] + "?play=true")
-                video_col.video(resp0[0]["video_url"] + "?play=true")
+                # video_col.video(resp0[0]["video_url"] + "?play=true")
+                show_video(resp0[0]["video_url"])
                 # show_music_list()
                 # center_col.image(resp0[0]["image_large_url"])
                 placeholder.empty()
