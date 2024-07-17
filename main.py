@@ -8,6 +8,7 @@ from datetime import timezone
 import dateutil.parser
 from datetime import datetime
 from pathlib import Path
+from streamlit_pagination import pagination_component
 
 import schemas
 from cookie import get_suno_auth,new_suno_auth,start_keep_alive,get_random_token
@@ -72,9 +73,20 @@ st.set_page_config(page_title="AI音乐创作工具",
                    )
 
 hide_streamlit_style = """
-<style>#root > div:nth-child(1) > div > div > div > div > section > div {padding-top: 2rem;}</style>
+<style>
+#root > div:nth-child(1) > div > div > div > div > section > div {padding-top: 2rem;}</style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+pagination_style = """
+<style>
+iframe{
+    height:100px;
+    width:500px;
+}
+</style>
+"""
+st.markdown(pagination_style, unsafe_allow_html=True)
 
 i18n_dir = os.path.join(root_dir, "i18n")
 # print(i18n_dir)
@@ -125,22 +137,54 @@ col1, col2, col3 = st.columns(3)
 main_col = col1
 video_col = col2
 
+
+# @st.cache_data(show_spinner=False)
+def paginate_user_music_list(data:list, batch_size, current_page):
+    return data[batch_size * (current_page - 1): batch_size * current_page]
+
+
 def show_music_list():
+    # 显示自己的音乐列表
+    music_container = video_col.container()
+    paginate_container = video_col.container()
+
     user_music_list = suno_sqlite.get_user_music_list(st.session_state.user_uuid)
     st.session_state.user_music_list = user_music_list
-    # 显示自己的音乐列表
-    with video_col.container(border=True):
-        video_col.write("我创建的")
-        for user_music in user_music_list:
+
+    with paginate_container:
+        # 分页
+        bottom_menu = paginate_container.columns((4, 1, 1))
+        with bottom_menu[2]:
+            batch_size = st.selectbox("Page Size", options=[2, 4, 10])
+        with bottom_menu[1]:
+            total_pages = (
+                int(len(user_music_list) / batch_size) if int(len(user_music_list) / batch_size) > 0 else 1
+            )
+            current_page = st.number_input(
+                "Page", min_value=1, max_value=total_pages, step=1
+            )
+        with bottom_menu[0]:
+            st.markdown(f"第 **{current_page}** 页/共 **{total_pages}** 页")
+
+    with music_container:
+        music_container.write("我创建的")
+        music_list = paginate_user_music_list(
+            user_music_list, batch_size, current_page
+        )
+        for user_music in music_list:
             title = user_music.title
             image_url = user_music.image_url
             audio_url = user_music.audio_url
             video_url = user_music.video_url
+            tags = user_music.metadata.tags
 
             # 使用video_col直接进行列划分
-            col1, col2 = video_col.columns([1, 4])
+            col1, col2 = music_container.columns([1, 4])
             col1.image(image_url, use_column_width=True)
             col2.write(title)
+            col2.text(tags)
+            # html = f"""<div style="font-size:16px">{tags}</div>"""
+            # col2.markdown(html, unsafe_allow_html=True)
             # col2.download_button(label="下载音频", data=audio_url, file_name=title + ".mp3", key=user_music.id)
             col2.audio(audio_url)
 
@@ -151,7 +195,7 @@ def show_music_list():
             #     col2_1, col2_2 = col2.columns(2)
             #     col2_1.download_button(label="下载音频", data=audio_url, file_name=title + ".mp3")
             #     col2_2.download_button(label="下载视频", data=video_url, file_name=title + ".mp4")
-        
+
 show_music_list()
 
 # 设置语言选择框
