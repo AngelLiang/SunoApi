@@ -138,40 +138,38 @@ main_col = col1
 video_col = col2
 
 
-# @st.cache_data(show_spinner=False)
-def paginate_user_music_list(data:list, batch_size, current_page):
-    return data[batch_size * (current_page - 1): batch_size * current_page]
-
-
 def show_music_list():
     # 显示自己的音乐列表
     music_container = video_col.container()
     paginate_container = video_col.container()
 
-    user_music_list = suno_sqlite.get_user_music_list(st.session_state.user_uuid)
-    st.session_state.user_music_list = user_music_list
+    user_music_count = suno_sqlite.get_user_music_count(st.session_state.user_uuid)
+    # st.session_state.user_music_count = user_music_count
 
     with paginate_container:
         # 分页
         bottom_menu = paginate_container.columns((4, 1, 1))
         with bottom_menu[2]:
-            batch_size = st.selectbox("Page Size", options=[2, 4, 10])
+            batch_size = st.selectbox("每页数量", options=[2, 4, 10], index=0)
         with bottom_menu[1]:
             total_pages = (
-                int(len(user_music_list) / batch_size) if int(len(user_music_list) / batch_size) > 0 else 1
+                int(user_music_count / batch_size) if int(user_music_count / batch_size) > 0 else 1
             )
             current_page = st.number_input(
-                "Page", min_value=1, max_value=total_pages, step=1
+                "页数", min_value=1, max_value=total_pages, step=1
             )
         with bottom_menu[0]:
             st.markdown(f"第 **{current_page}** 页/共 **{total_pages}** 页")
 
+    user_music_list = suno_sqlite.get_user_music_list(
+        st.session_state.user_uuid,
+        batch_size * (current_page - 1),
+        batch_size,
+    )
+    # st.session_state.user_music_list = user_music_list
     with music_container:
         music_container.write("我创建的")
-        music_list = paginate_user_music_list(
-            user_music_list, batch_size, current_page
-        )
-        for user_music in music_list:
+        for user_music in user_music_list:
             title = user_music.title
             image_url = user_music.image_url
             audio_url = user_music.audio_url

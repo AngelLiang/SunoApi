@@ -183,11 +183,21 @@ class SqliteTool():
             )
         )
 
-    def get_user_music_list(self, user_cookie:str) -> List[Music]:
-        result =  self.query_many("select data from music where user_cookie = ?", (user_cookie,))
+    def get_user_music_list(self, user_cookie:str, offset:int=None, limit:int=None) -> List[Music]:
+        if offset is None or limit is None:
+            result =  self.query_many("select data from music where user_cookie = ?", (user_cookie,))
+        else:
+            result =  self.query_many("select data from music where user_cookie = ? LIMIT ? OFFSET ?", (user_cookie, limit, offset))
         if not result:
             return []
         music_list = []
         for item in result:
             music_list.append(Music.parse_raw(item[0]))
         return music_list
+
+    def get_user_music_count(self, user_cookie:str) -> int:
+        result = self.query_one("select count(*) from music where user_cookie = ?", (user_cookie,))
+        if not result:
+            return 0
+        count = result[0]
+        return count
