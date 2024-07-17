@@ -78,16 +78,6 @@ hide_streamlit_style = """
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-pagination_style = """
-<style>
-iframe{
-    height:100px;
-    width:500px;
-}
-</style>
-"""
-st.markdown(pagination_style, unsafe_allow_html=True)
-
 i18n_dir = os.path.join(root_dir, "i18n")
 # print(i18n_dir)
 
@@ -136,21 +126,22 @@ col1, col2, col3 = st.columns(3)
 
 main_col = col1
 video_col = col2
+music_col = col3
 
 
 def show_music_list():
     # 显示自己的音乐列表
-    music_container = video_col.container()
-    paginate_container = video_col.container()
+    music_container = music_col.container()
+    paginate_container = music_col.container()
 
     user_music_count = suno_sqlite.get_user_music_count(st.session_state.user_uuid)
     # st.session_state.user_music_count = user_music_count
 
-    with paginate_container:
+    if user_music_count:
         # 分页
         bottom_menu = paginate_container.columns((4, 1, 1))
         with bottom_menu[2]:
-            batch_size = st.selectbox("每页数量", options=[2, 4, 10], index=0)
+            batch_size = st.selectbox("每页数量", options=[2, 4, 10], index=1)
         with bottom_menu[1]:
             total_pages = (
                 int(user_music_count / batch_size) if int(user_music_count / batch_size) > 0 else 1
@@ -160,6 +151,9 @@ def show_music_list():
             )
         with bottom_menu[0]:
             st.markdown(f"第 **{current_page}** 页/共 **{total_pages}** 页")
+    else:
+        batch_size = 0
+        current_page = 1
 
     user_music_list = suno_sqlite.get_user_music_list(
         st.session_state.user_uuid,
@@ -168,7 +162,9 @@ def show_music_list():
     )
     # st.session_state.user_music_list = user_music_list
     with music_container:
-        music_container.write("我创建的")
+        music_container.title("我创建的")
+        music_container.text("音乐列表")
+        # music_list_container = music_container.container(border=True)
         for user_music in user_music_list:
             title = user_music.title
             image_url = user_music.image_url
@@ -177,7 +173,8 @@ def show_music_list():
             tags = user_music.metadata.tags
 
             # 使用video_col直接进行列划分
-            col1, col2 = music_container.columns([1, 4])
+            music_detail_container = music_container.container(border=True)
+            col1, col2 = music_detail_container.columns([1, 3])
             col1.image(image_url, use_column_width=True)
             col2.write(title)
             col2.text(tags)
