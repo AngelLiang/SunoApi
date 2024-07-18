@@ -189,7 +189,7 @@ class SqliteTool():
         else:
             result =  self.query_many(
                 "select data from music where user_cookie = ? \
-                ORDER BY created \
+                ORDER BY created DESC \
                 LIMIT ? OFFSET ? ",
                 (user_cookie, limit, offset))
         if not result:

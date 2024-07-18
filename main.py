@@ -129,11 +129,12 @@ video_col = col2
 music_col = col3
 
 
-def show_video(video_url: str):
-    if "video_slot" in st.session_state:
-        st.session_state.video_slot.empty()
-    st.session_state.video_slot = video_col.empty()
-    st.session_state.video_slot.video(video_url + "?autoplay=1")
+def show_video(video_url: str, clear: bool = True):
+    if clear:
+        if "video_slot" in st.session_state:
+            st.session_state.video_slot.empty()
+        st.session_state.video_slot = video_col.empty()
+    # st.session_state.video_slot.video(video_url + "?autoplay=1")
 
 
 def show_music_list():
@@ -179,8 +180,10 @@ def show_music_list():
             video_url = user_music.video_url
             tags = user_music.metadata.tags
 
-            if i == 0:
-                show_video(video_url)
+            # if i == 0:
+            #     show_video(video_url)
+            # if i == 1:
+            #     show_video(video_url, clear=False)
 
             # 直接进行列划分
             music_detail_container = music_container.container(border=True)
@@ -1013,9 +1016,9 @@ def fetch_status(aid: str, twice=False):
     
     """
     progress_text = i18n("Fetch Status Progress")
-    my_bar = main_col.progress(0, text=progress_text)
+    generate_bar = main_col.progress(0, text=progress_text)
     percent_complete = 0
-    my_bar.progress(percent_complete, text=progress_text)
+    generate_bar.progress(percent_complete, text=progress_text)
     while True:
         resp = get_feed(aid, get_random_token())
         print(f'get_feed:{resp}')
@@ -1028,18 +1031,18 @@ def fetch_status(aid: str, twice=False):
         if status == "running":
             # 运行中
             progress_text = i18n("Fetch Status Running") + status
-            my_bar.progress(percent_complete, text=progress_text)
+            generate_bar.progress(percent_complete, text=progress_text)
         elif status == "submitted":
             # 已提交
             progress_text = i18n("Fetch Status Running") + status
-            my_bar.progress(percent_complete, text=progress_text)
+            generate_bar.progress(percent_complete, text=progress_text)
         elif status == "complete":
             # 完成
             progress_text = i18n("Fetch Status Success") + status
-            my_bar.progress(100, text=progress_text)
+            generate_bar.progress(100, text=progress_text)
             # time.sleep(15) #等待图片音频视频生成完成再返回
             check_url_available(resp[0]["video_url"], twice)
-            my_bar.empty()
+            generate_bar.empty()
         elif status == "Unauthorized":
             # 未认证
             # while True:
@@ -1056,11 +1059,11 @@ def fetch_status(aid: str, twice=False):
             continue
         elif status == "error":
             # 错误
-            my_bar.empty()
+            generate_bar.empty()
         else:
             progress_text = i18n("Fetch Status Running") + status
             status = "queued"
-            my_bar.progress(percent_complete, text=progress_text)
+            generate_bar.progress(percent_complete, text=progress_text)
         
         result = suno_sqlite.query_one("select aid from music where aid =?", (aid,))
         print(result)
@@ -1250,15 +1253,6 @@ if StartBtn :
                         placeholder.error(i18n("Generate Status Error") + (resp0[0]['status'] if resp0[0]['metadata']["error_message"] is None else resp0[0]['metadata']["error_message"]))
 
                     # 插入一条音乐数据
-                    # result = suno_sqlite.operate_one(
-                    #     "insert into music (aid, data, private, user_cookie) values(?,?,?,?)", 
-                    #     (
-                    #         str(resp["clips"][1]["id"]), 
-                    #         str(resp["clips"][1]), 
-                    #         st.session_state.Private,
-                    #         st.session_state.user_uuid,
-                    #     )
-                    # )
                     suno_sqlite.user_add_music(
                         str(resp["clips"][1]["id"]), 
                         json.dumps(resp["clips"][1]),
@@ -1286,7 +1280,7 @@ if StartBtn :
             if resp0[0]["status"] == "complete":
                 # video_col.audio(resp0[0]["audio_url"] + "?play=true")
                 # video_col.video(resp0[0]["video_url"] + "?play=true")
-                show_video(resp0[0]["video_url"])
+                # show_video(resp0[0]["video_url"])
                 # show_music_list()
                 # center_col.image(resp0[0]["image_large_url"])
                 placeholder.empty()
@@ -1301,6 +1295,7 @@ if StartBtn :
                 # col3.audio(resp1[0]["audio_url"] + "?play=true")
                 # col3.video(resp1[0]["video_url"] + "?play=true")
                 # col3.image(resp1[0]["image_large_url"])
+                # show_video(resp1[0]["video_url"], clear=False)
                 placeholder.empty()
                 main_col.success(i18n("Generate Success") + resp1[0]["id"])
             else:
