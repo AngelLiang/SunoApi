@@ -121,6 +121,7 @@ user_uuid = init_cookie()
 # user_uuid = '12f9b56c-5eed-4d2b-848b-db532179492b'
 st.session_state.user_uuid = user_uuid
 
+message = st.container().empty()
 
 col1, col2, col3 = st.columns(3)
 
@@ -188,9 +189,12 @@ def show_music_list():
             # 直接进行列划分
             music_detail_container = music_container.container(border=True)
             col1, col2 = music_detail_container.columns([1, 3])
-            col1.image(image_url, use_column_width=True)
+            col1.image(image_url, width=100)
+            # col2_container = col2.container()
+            # col2_1, col2_2 = col2_container.columns(2)
             col2.write(title)
             col2.text(tags)
+
             # html = f"""<div style="font-size:16px">{tags}</div>"""
             # col2.markdown(html, unsafe_allow_html=True)
             # col2.download_button(label="下载音频", data=audio_url, file_name=title + ".mp3", key=user_music.id)
@@ -1170,14 +1174,14 @@ if StartBtn :
                     st.session_state['clips_0'] = str(resp["clips"][0]["id"])
                     st.session_state['clips_1'] = str(resp["clips"][1]["id"])
 
-                    # 获取第一首音乐信息
+                    # 获取第一首音乐的状态
                     resp0 = fetch_status(resp["clips"][0]["id"], False)
                     if resp0[0]["status"] == "complete":
                         # 气球效果
                         # st.balloons()
                         # video_col.audio(resp0[0]["audio_url"] + "?play=true")
                         # video_col.video(resp0[0]["video_url"] + "?play=true")
-                        show_video(resp0[0]["video_url"])
+                        # show_video(resp0[0]["video_url"])
                         # center_col.image(resp0[0]["image_large_url"])
                         placeholder.empty()
                         main_col.success(i18n("Generate Success") + resp0[0]["id"])
@@ -1192,7 +1196,7 @@ if StartBtn :
                         st.session_state.user_uuid
                     )
 
-                    # 获取第二首音乐信息
+                    # 获取第二首音乐的状态
                     resp1 = fetch_status(resp["clips"][1]["id"], True)
                     if resp1[0]["status"] == "complete":
                         # 气球效果
@@ -1200,7 +1204,7 @@ if StartBtn :
                         # col3.audio(resp1[0]["audio_url"] + "?play=true")
                         # col3.video(resp1[0]["video_url"] + "?play=true")
                         # col3.image(resp1[0]["image_large_url"])
-                        show_video(resp0[0]["video_url"])
+                        # show_video(resp0[0]["video_url"])
                         placeholder.empty()
                         main_col.success(i18n("Generate Success") + resp1[0]["id"])
                     else:
@@ -1339,3 +1343,10 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 #     st.components.v1.html(hide_streamlit_style1, height=30)
 
 # components.iframe("https://sunoapi.net/analytics.html", height=0)
+
+
+# print(st.session_state['clips_0'])
+# print(st.session_state['clips_1'])
+
+# message.info('This is a purely informational message', icon="ℹ️")
+

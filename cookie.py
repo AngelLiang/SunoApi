@@ -165,7 +165,20 @@ def page_feed(suno_cookie: SunoCookie):
                     )
                 else:
                     result = suno_sqlite.operate_one(
-                        "insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", (str(row["id"]), json.dumps(row), row["user_id"], row["display_name"], row["image_url"], row["title"], row["metadata"]["tags"], row["metadata"]["gpt_description_prompt"], row["metadata"]["duration"], row["status"], 0)
+                        "insert into music (aid, data, sid, name, image, title, tags, prompt,duration, status, private) values(?,?,?,?,?,?,?,?,?,?,?)", 
+                        (
+                            str(row["id"]),
+                            json.dumps(row), 
+                            row["user_id"], 
+                            row["display_name"], 
+                            row["image_url"], 
+                            row["title"], 
+                            row["metadata"]["tags"], 
+                            row["metadata"]["gpt_description_prompt"], 
+                            row["metadata"]["duration"], 
+                            row["status"],
+                            0
+                        )
                     )
                 print(result)
                 print("\n")

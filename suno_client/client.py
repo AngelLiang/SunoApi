@@ -62,7 +62,10 @@ class SunoClient:
         url = 'https://studio-api.suno.ai/api/feed/v2?add_preset_clips=true'
         resp = self.do_get(url,headers={'Authorization': f'Bearer {token}'})
         resp_json = self.handle_response(resp)
-        return schemas.Feed.parse_obj(resp_json)
+        try:
+            return schemas.Feed.parse_obj(resp_json)
+        except Exception as err:
+            raise SunoClientError(err)
 
 
 client = SunoClient()
